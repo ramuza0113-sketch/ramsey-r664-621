@@ -1,7 +1,7 @@
 \ifx\XeTeXversion\undefined\pdfoutput=1\fi
 \documentclass[11pt]{article}
 
-\usepackage[margin=1.1in]{geometry}
+\usepackage[margin=1.08in]{geometry}
 \ifx\XeTeXversion\undefined
   \usepackage[T1]{fontenc}
   \usepackage{lmodern}
@@ -24,6 +24,7 @@
 % ============================
 
 \newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{lemma}[theorem]{Lemma}
 \theoremstyle{remark}
@@ -33,11 +34,11 @@
 \newcommand{\Z}{\mathbb{Z}}
 
 \hypersetup{
-  pdftitle={An Improved Lower Bound for the Hypergraph Ramsey Number R(6,6;4)},
+  pdftitle={Improved Constructive Lower Bounds for Small Hypergraph Ramsey Numbers},
   pdfauthor={\AuthorName},
 }
 
-\title{\bfseries An Improved Lower Bound for the\\ Hypergraph Ramsey Number $R(6,6;4)$}
+\title{\bfseries Improved Constructive Lower Bounds for\\ Small Hypergraph Ramsey Numbers}
 
 \author{\AuthorName\\[4pt]
 \small \AuthorAffiliation\\[2pt]
@@ -49,130 +50,193 @@
 \maketitle
 
 \begin{abstract}
-Let $R(k,l;t)$ denote the smallest integer $n$ such that every $2$-colouring
-of the $t$-subsets of an $n$-element set contains either a $k$-subset all of
-whose $t$-subsets have colour~$0$ or an $l$-subset all of whose $t$-subsets
-have colour~$1$. Extending projective-line constructions from
-$\mathrm{PGL}(2,q)$ to the index-$2$ subgroup $\mathrm{PSL}(2,q)$ for primes
-$q\equiv 3\pmod 4$, we exhibit an explicit $\mathrm{PSL}(2,619)$-invariant
-$2$-colouring of the $4$-subsets of the $620$-point projective line
-$\F_{619}\cup\{\infty\}$ with no monochromatic $6$-subset in either colour.
-This establishes
+Let $R(k_1,\dots,k_r;t)$ denote the smallest integer $n$ such that every
+$r$-colouring of the $t$-element subsets of an $n$-element set contains, for
+some $i\in\{1,\dots,r\}$, a $k_i$-element subset all of whose $t$-subsets have
+colour~$i$. We construct three explicit hypergraph colourings establishing
 \[
-  R(6,6;4)\ge 621,
+  R(4,4,4;3)\ge 100,\qquad R(5,7;4)\ge 711,\qquad R(6,6;4)\ge 685,
 \]
-improving the previous bounds $133$ listed in Radziszowski's dynamic survey,
-$317$ obtained recently by \"Ozdemir, and $601$ established via
-$\mathrm{PGL}(2,599)$ by Lysenst{\o}en. An independent clean-room verification
-program and machine-readable witness table accompany this note.
+improving the previous bounds $84$, $401$, and $601$ (and $79$, $133$, and
+$133$ in Revision~\#18 of Radziszowski's dynamic survey). The $3$-colouring for
+$R(4,4,4;3)$ acts on $\Z_{98}\cup\{\infty\}$ under an affine subgroup of order
+$294$, while the $2$-colourings for $R(5,7;4)$ and $R(6,6;4)$ live on the
+projective lines $\F_{709}\cup\{\infty\}$ and $\F_{683}\cup\{\infty\}$ under
+$\mathrm{PGL}(2,709)$ and $\mathrm{PSL}(2,683)$, respectively. Combined with
+known recurrence and stepping-up constructions, these colourings yield
+$R(6,7;4)\ge 3\,551$, $R(7,7;4)\ge 21\,301$, $R(7,8;4)\ge 149\,101$,
+$R(8,8;4)\ge 1\,043\,701$, $R(13,6;4)\ge 227\,201$, $R_6(5;4)>2^{99}$, and
+$R(12,12;5)>2^{684}$. All three witnesses are printed in full in this note and
+are accompanied by standalone clean-room verification programs.
 \end{abstract}
 
 \medskip
 \noindent\textbf{Keywords:} hypergraph Ramsey numbers; constructive lower
-bounds; projective special linear group; cross-ratio; stochastic local search;
-computational verification.\\
+bounds; projective line; affine group; counterexample-guided SAT; stochastic
+local search; computational verification.\\
 \textbf{MSC 2020:} 05D10; 05C55; 05C65.
 
 \section{Introduction}
 
-How large can a finite set be if its $4$-element subsets are coloured with two
-colours so that no $6$ points have all $\binom{6}{4}=15$ of their $4$-subsets
-monochromatic? This question defines the diagonal $4$-uniform hypergraph Ramsey
-number $R(6,6;4)$---more generally, $R(k,l;t)$ is the least integer $n$ such
-that every $2$-colouring of $\binom{[n]}{t}$ yields a colour-$0$ $k$-subset or
-a colour-$1$ $l$-subset. Since Erd\H{o}s, Hajnal, and Rado initiated the study
-of hypergraph Ramsey numbers in the 1960s and McKay and Radziszowski determined
-$R(4,4;3)=13$, constructive lower bounds for small $t$-uniform Ramsey numbers
-have served as a central benchmark connecting finite geometry, permutation
-groups, and combinatorial search~\cite{survey}.
+For integers $t\ge 2$ and $k_1,\dots,k_r>t$, the \emph{hypergraph Ramsey number}
+$R(k_1,\dots,k_r;t)$ is the least $n$ such that every colouring of the
+$t$-subsets of an $n$-set with colours $\{0,\dots,r-1\}$ yields, for some
+colour~$c$, a $k_{c+1}$-subset all of whose $t$-subsets have colour~$c$; when
+$k_1=\dots=k_r=k$ we write $R_r(k;t)$. We refer to such a colouring with no
+forbidden monochromatic subset as a \emph{$(k_1,\dots,k_r;t)$-colouring of
+order~$n$}, which proves $R(k_1,\dots,k_r;t)\ge n+1$.
 
-For $t=4$, exact values remain out of reach even for $R(5,5;4)\ge 49$~\cite{ozdemir},
-while $R(6,6;4)$ has undergone striking constructive progress in 2026: the
-long-standing bound $R(6,6;4)\ge 133$ in Revision~\#18 of Radziszowski's
-dynamic survey~\cite{survey} was raised to $317$ by \"Ozdemir~\cite{ozdemir}
-and very recently to $601$ by Lysenst{\o}en~\cite{lysenstoen} using a
-$\mathrm{PGL}(2,599)$-invariant colouring of the projective line
-$\F_{599}\cup\{\infty\}$.
+Beyond the classical exact value $R(4,4;3)=13$ of McKay and
+Radziszowski~\cite{mr1}, constructive lower bounds for small $t$-uniform Ramsey
+numbers have seen rapid development in 2026. Revision~\#18 of Radziszowski's
+dynamic survey~\cite[Section~7.1]{survey} records the $3$-colour bound
+$R(4,4,4;3)\ge 79$ due to Dybizba\'nski~\cite{dyb3} and the recursive
+$4$-uniform bounds $R(5,6;4)\ge 67$, $R(6,6;4)\ge 133$, $R(6,7;4)\ge 661$,
+$R(7,7;4)\ge 3\,961$, $R(8,8;4)\ge 194\,041$, and $R(13,6;4)\ge 50\,689$ derived
+from Song, Ye, and Liu~\cite{sonyl} and Liu~\cite{liu}. Recent data deposits by
+Yang~\cite{yang} and \"Ozdemir~\cite{ozdemir} raised $R(4,4,4;3)$ to $84$ and
+$R(5,6;4)$ to $159$ (implying $R(6,6;4)\ge 317$), and a very recent preprint of
+Lysenst{\o}en~\cite{lysenstoen} established $R(5,6;4)\ge 201$ and
+$R(6,6;4)\ge 601$ via projective-line colourings, deducing $R(5,7;4)\ge 401$,
+$R(6,7;4)\ge 2\,001$, $R(7,7;4)\ge 12\,001$, $R(7,8;4)\ge 84\,001$, and
+$R(8,8;4)\ge 588\,001$.
 
-The purpose of this note is both to improve this bound and to explain two
-structural mechanisms governing projective-line Ramsey constructions for
-$4$-subsets. In~\cite{lysenstoen}, $\mathrm{PSL}(2,q)$-invariant colourings
-were employed for the off-diagonal number $R(5,6;4)$ at $q=199$, whereas only
-full $\mathrm{PGL}(2,q)$ invariance was searched for $R(6,6;4)$. First, we note
-(Lemma~\ref{lem:3hom}) that whenever $q\equiv 3\pmod 4$, restricting from
-$\mathrm{PGL}(2,q)$ to its index-$2$ subgroup $\mathrm{PSL}(2,q)$ preserves
-transitivity on unordered $3$-subsets of the projective line---keeping the
-normalized verification space at exact size $\binom{q-2}{3}$---while splitting
-roughly one quarter of the cross-ratio orbits in two. Second, by Dickson's
-classification of subgroups of $\mathrm{PSL}(2,q)$~\cite{dickson}, octahedral
-subgroups isomorphic to $S_4$ occur in $\mathrm{PSL}(2,q)$ if and only if
-$q\equiv\pm 1\pmod 8$; passing from $q\equiv 7\pmod 8$ to primes
-$q\equiv 3\pmod 8$ eliminates $6$-point octahedral orbits whose $15$
-$4$-subsets collapse into short symmetric clauses (Remark~\ref{rem:dickson}).
-Combining these two observations with a cache-resident hybrid stochastic local
-search yields an explicit witness at $q=619=8\cdot 77+3$.
+In this paper we combine three group-theoretic orbit reductions with GPU
+stochastic local search and counterexample-guided SAT refinement (CEGAR) to
+improve ten of these lower bounds:
+\begin{itemize}
+\item For $3$-subsets in three colours, relaxing large multiplier subgroups on
+  $\Z_p$ to small cyclic multiplier subgroups of order~$3$ on
+  $\Z_{98}\cup\{\infty\}$ (with $545$ ternary orbit variables) and applying
+  persistent ternary probSAT with smooth clause weighting yields an explicit
+  $(4,4,4;3)$-colouring $T_{99}$ of order~$99$.
+\item For the asymmetric $4$-uniform number $R(5,7;4)$---previously bounded
+  only indirectly via $2R(5,6;4)-1$ because naive enumeration of $\binom{n}{7}$
+  clauses is prohibitive for $n>400$---coupling a CDCL SAT solver on all
+  $5$-subset clauses with a bitmask-pruned $7$-clique counterexample oracle
+  produces a $\mathrm{PGL}(2,709)$-invariant $(5,7;4)$-colouring $G_{710}$ of
+  order~$710$.
+\item For the diagonal $4$-uniform number $R(6,6;4)$, passing from
+  $\mathrm{PGL}(2,q)$ to its index-$2$ subgroup $\mathrm{PSL}(2,q)$ for primes
+  $q\equiv 3\pmod 4$ preserves $3$-homogeneity on $\F_q\cup\{\infty\}$ while
+  splitting one quarter of the cross-ratio orbits, enabling a massive-parallel
+  GPU probSAT search to reach $q=683$ ($684$ points).
+\end{itemize}
 
-\begin{theorem}\label{thm:main}
-$R(6,6;4)\ge 621$.
+\begin{theorem}\label{thm:three}
+$R(4,4,4;3)\ge 100$.
 \end{theorem}
 
-Table~\ref{tab:history} summarizes the progression of constructive lower bounds
-for $R(6,6;4)$.
+\begin{theorem}\label{thm:four}
+$R(5,7;4)\ge 711$ \ and \ $R(6,6;4)\ge 685$.
+\end{theorem}
+
+Applying the recurrences of Song, Ye, and Liu~\cite{sonyl} and the stepping-up
+constructions of Erd\H{o}s--Hajnal~\cite{grs} and Jartoux, Keller, Smorodinsky,
+and Yuditsky~\cite{jaksy} quoted in~\cite[Sections~7.1 and~7.5]{survey} gives
+the following consequences (proved in Section~\ref{sec:conseq}).
+
+\begin{corollary}\label{cor:rec}
+$R(6,7;4)\ge 3\,551$, \ $R(7,7;4)\ge 21\,301$, \ $R(7,8;4)\ge 149\,101$, \
+$R(8,8;4)\ge 1\,043\,701$, \ and \ $R(13,6;4)\ge 227\,201$. Moreover,
+$R_6(5;4)>2^{99}$ and $R(12,12;5)>2^{684}$.
+\end{corollary}
+
+Table~\ref{tab:summary} compares these bounds with the previous literature.
 
 \begin{table}[ht]
 \centering
 \small
-\begin{tabular}{llccc}
+\begin{tabular}{llcc}
 \toprule
-Source & Invariance group & Order $n$ & Orbit variables & Lower bound\\
+Ramsey number & Previous lower bounds & New lower bound & Method / Order\\
 \midrule
-Dynamic Survey DS1~\cite{survey} & Classical / stepping-up & $132$ & -- & $133$\\
-\"Ozdemir~\cite{ozdemir} & $\mathrm{PSL}(2,q)$ / projective & $316$ & -- & $317$\\
-Lysenst{\o}en~\cite{lysenstoen} & $\mathrm{PGL}(2,599)$ & $600$ & $100$ & $601$\\
-Present work ($F_{620}$) & $\mathrm{PSL}(2,619)$ & $620$ & $130$ & $\mathbf{621}$\\
+$R(4,4,4;3)$ & $79$~\cite{survey,dyb3}; \ $84$~\cite{yang} & $\mathbf{100}$ & Explicit $T_{99}$ ($n=99$)\\
+$R(5,7;4)$ & $133$~\cite{survey}; \ $317^{\dagger}$; \ $401$~\cite{lysenstoen} & $\mathbf{711}$ & Explicit $G_{710}$ ($n=710$)\\
+$R(6,6;4)$ & $133$~\cite{survey}; \ $317$~\cite{ozdemir}; \ $601$~\cite{lysenstoen} & $\mathbf{685}$ & Explicit $F_{684}$ ($n=684$)\\
+\midrule
+$R(6,7;4)$ & $661$~\cite{survey}; \ $1\,581^{\dagger}$; \ $2\,001$~\cite{lysenstoen} & $\mathbf{3\,551}$ & Recurrence from $R(5,7;4)$\\
+$R(7,7;4)$ & $3\,961$~\cite{survey}; \ $9\,481^{\dagger}$; \ $12\,001$~\cite{lysenstoen} & $\mathbf{21\,301}$ & Recurrence from $R(6,7;4)$\\
+$R(7,8;4)$ & $84\,001$~\cite{lysenstoen} & $\mathbf{149\,101}$ & Recurrence from $R(7,7;4)$\\
+$R(8,8;4)$ & $194\,041$~\cite{survey}; \ $588\,001$~\cite{lysenstoen} & $\mathbf{1\,043\,701}$ & Recurrence from $R(7,8;4)$\\
+$R(13,6;4)$ & $50\,689$~\cite{survey,liu}; \ $128\,001^{\ddagger}$ & $\mathbf{227\,201}$ & Doubling from $R(6,7;4)$\\
+$R_6(5;4)$ & $>2^{78}$~\cite{survey,jaksy}; \ $>2^{83}$~\cite{yang,jaksy} & $\mathbf{>2^{99}}$ & Stepping-up from $R_3(4;3)$\\
+$R(12,12;5)$ & $>2^{132}$~\cite{survey,grs}; \ $>2^{600}$~\cite{lysenstoen,grs} & $\mathbf{>2^{684}}$ & Stepping-up from $R(6,6;4)$\\
 \bottomrule
 \end{tabular}
-\caption{Constructive lower bounds for the $4$-uniform diagonal Ramsey number $R(6,6;4)$.}
-\label{tab:history}
+\caption{Summary of improved lower bounds. Values marked $\dagger$ follow from
+$R(5,6;4)\ge 159$~\cite{ozdemir}; $128\,001^{\ddagger}$ follows from
+$R(6,7;4)\ge 2\,001$~\cite{lysenstoen} via $6$ applications of
+$R(p,6;4)\ge 2R(p-1,6;4)-1$.}
+\label{tab:summary}
 \end{table}
 
-\section{Projective Line Orbits Under $\mathrm{PSL}(2,q)$ for $q\equiv 3\pmod 4$}\label{sec:psl}
+\section{The Three-Colouring $T_{99}$ for $R(4,4,4;3)\ge 100$}\label{sec:t99}
 
-Let $q$ be an odd prime and let $L_q=\F_q\cup\{\infty\}$ denote the projective
-line of cardinality $q+1$. The group $\mathrm{PGL}(2,q)$ acts sharply
-$3$-transitively on ordered triples of distinct points of $L_q$ by fractional
-linear transformations $z\mapsto(\alpha z+\beta)/(\gamma z+\delta)$ with
-$\alpha\delta-\beta\gamma\in\F_q^\times$, and $\mathrm{PSL}(2,q)$ is the
-index-$2$ subgroup consisting of classes represented by matrices whose
-determinant $\alpha\delta-\beta\gamma$ is a non-zero square in $\F_q$ (or
-equivalently equal to~$1$).
+Let $X_{99}=\Z_{98}\cup\{\infty\}$, ordered as $0<1<\dots<97<\infty$ (with
+$\infty$ encoded as~$98$). Since $67^3\equiv 1\pmod{98}$ and
+$\gcd(67,98)=1$, the affine group
+\[
+  G(98,67)=\{\,x\mapsto a x+b \bmod 98 \;:\; a\in\{1,67,31\},\; b\in\Z_{98}\,\},
+\]
+with every map fixing~$\infty$, has order $98\cdot 3=294$ and partitions the
+$\binom{99}{3}=156\,849$ triples of $X_{99}$ into $545$ orbits ($528$ orbits of
+size~$294$, $16$ of size~$98$, and $1$ of size~$49$). List all triples
+$\{a,b,c\}\subset X_{99}$ ($a<b<c$) in lexicographic order, and number the
+$545$ orbits $O_0,O_1,\dots,O_{544}$ in increasing order of their
+lexicographically first representative triple (so $O_0$ is the orbit of
+$\{0,1,2\}$, $O_1$ of $\{0,1,3\}$, and so on).
 
-\begin{lemma}\label{lem:3hom}
-If $q\equiv 3\pmod 4$, then $\mathrm{PSL}(2,q)$ acts transitively on the
-$\binom{q+1}{3}$ unordered $3$-subsets of $L_q$. Consequently, a
-$\mathrm{PSL}(2,q)$-invariant $2$-colouring of $\binom{L_q}{4}$ has no
-monochromatic $6$-subset if and only if none of the $\binom{q-2}{3}$
-$6$-subsets containing $\{\infty,0,1\}$ is monochromatic.
-\end{lemma}
+We define the $G(98,67)$-invariant $3$-colouring $T_{99}\colon\binom{X_{99}}{3}\to\{0,1,2\}$
+by assigning to orbit $O_i$ ($0\le i\le 544$) the $i$-th character (indexed
+from~$0$, reading rows from top to bottom) of the $545$-character string:
+\begin{quote}
+\footnotesize\ttfamily\noindent
+0200011210201202021012102122022212011211001021201220012\\
+0101012020002010020111012122201201020012012220110210200\\
+2001100011022221002101220022110222221120112001220222111\\
+2021012201221110002210112020102110220101122211010021210\\
+0100011220021110211000221102021101011210022010021202102\\
+1220001121000122112121022000122210101202021211002200102\\
+2211010102211001221210000221211210110121102101012002110\\
+2220202200222220221120100101102112120121012211121220000\\
+2010221001220020201112220101220101000111100020202211220\\
+02002211210220202011001222010102021200120201011200
+\end{quote}
+Under $T_{99}$, colours $0$, $1$, and $2$ receive $188$, $174$, and $183$
+orbits, accounting for $55\,027$, $49\,980$, and $51\,842$ triples,
+respectively. The SHA-256 digest of the $545$-character orbit string is
+\[
+  \texttt{524a14cbc477f4966994b3a0efa6b6488484e329016302c4858b89940a836549},
+\]
+and the SHA-256 digest of the expanded $156\,849$-character string over all
+triples in lexicographic order is
+\[
+  \texttt{75b4560cf8cd2191fad4a85a5597b51850dedf42056aedb867a9da473a994d03}.
+\]
+(Restricting the same group $G(98,67)$ to $\Z_{98}$ without $\infty$ also gave a
+separate $(4,4,4;3)$-colouring $T_{98}$ of order~$98$ on $528$ orbits, archived
+in the ancillary repository.)
 
-\begin{proof}
-Given any $3$-subset $T=\{u,v,w\}\subset L_q$, sharp $3$-transitivity of
-$\mathrm{PGL}(2,q)$ yields a unique map $g\in\mathrm{PGL}(2,q)$ sending the
-ordered triple $(u,v,w)$ to $(\infty,0,1)$. Let $h\in\mathrm{PGL}(2,q)$ be the
-involution $z\mapsto 1-z$, represented by $\bigl(\begin{smallmatrix}-1&1\\0&1\end{smallmatrix}\bigr)$
-of determinant $-1$, which swaps $0$ and $1$ and fixes $\infty$. Because
-$q\equiv 3\pmod 4$, $-1$ is a quadratic non-residue in $\F_q^\times$. Thus
-exactly one of $g$ and $h\circ g$ has square determinant and therefore belongs
-to $\mathrm{PSL}(2,q)$, mapping $T$ setwise onto $\{\infty,0,1\}$. Since every
-map in $\mathrm{PSL}(2,q)$ preserves colours of $4$-subsets, any monochromatic
-$6$-subset $S\subset L_q$ is carried by an element of $\mathrm{PSL}(2,q)$
-sending three points of $S$ onto $\{\infty,0,1\}$ to a monochromatic $6$-subset
-containing $\{\infty,0,1\}$.
+\begin{proposition}\label{prop:t99}
+$T_{99}$ is a $(4,4,4;3)$-colouring of order $99$; none of the
+$\binom{99}{4}=3\,764\,376$ $4$-subsets of $X_{99}$ has all four of its triples
+in the same colour.
+\end{proposition}
+
+\begin{proof}[Computational verification]
+Established by the direct exhaustive check of all $3\,764\,376$ $4$-subsets of
+$X_{99}$ described in Section~\ref{sec:verif}.
 \end{proof}
 
-To parametrize the orbits of $\mathrm{PSL}(2,q)$ on $\binom{L_q}{4}$ when
-$q\equiv 3\pmod 4$, identify $L_q$ with $\{0,1,\dots,q-1,\infty\}$ ordered so
-that $0<1<\dots<q-1<\infty$. For $a<b<c<d$ in $L_q$, define
+Theorem~\ref{thm:three} follows immediately from Proposition~\ref{prop:t99}.
+
+\section{Projective-Line Colourings for $R(5,7;4)$ and $R(6,6;4)$}\label{sec:proj}
+
+Let $q$ be an odd prime and let $L_q=\F_q\cup\{\infty\}$ denote the projective
+line of cardinality $q+1$, ordered so that $0<1<\dots<q-1<\infty$. For any
+$4$-subset $\{a,b,c,d\}\subset L_q$ with $a<b<c<d$, define the cross-ratio
+$x\in\F_q\setminus\{0,1\}$ and discriminant $\Delta\in\F_q^\times$ by
 \begin{equation}\label{eq:rule}
   x = \begin{cases}
     \dfrac{(a-c)(b-d)}{(a-d)(b-c)} \bmod q & \text{if } d<\infty,\\[10pt]
@@ -181,31 +245,56 @@ that $0<1<\dots<q-1<\infty$. For $a<b<c<d$ in $L_q$, define
   \qquad
   \Delta = (b-a)(c-a)(c-b) \bmod q.
 \end{equation}
-Notice that the matrix sending $(a,b,c)\mapsto(0,1,\infty)$ or $(\infty,0,1)$
-has determinant up to squares governed by the Legendre symbol of $\Delta$:
-specifically, the unique fractional linear transformation sending
-$(a,b,c,d)\mapsto(0,1,x,\infty)$ has determinant congruent modulo squares to
-$-\Delta$. Under the alternating subgroup $A_3=\{\mathrm{id},\,z\mapsto 1/(1-z),\,z\mapsto(z-1)/z\}\le\mathrm{PSL}(2,q)$
-stabilizing $\{\infty,0,1\}$, each $x\in\F_q\setminus\{0,1\}$ generates a
-$3$-element orbit (or $1$-element orbit if $x^2-x+1\equiv 0\pmod q$)
+Under $\mathrm{PGL}(2,q)$, which acts sharply $3$-transitively on $L_q$, two
+$4$-subsets lie in the same orbit if and only if their cross-ratios belong to
+the same $S_3$-class
 \[
-  C_3(x)=\Bigl\{\,x,\;\frac{1}{1-x},\;\frac{x-1}{x}\,\Bigr\}\subset\F_q\setminus\{0,1\}.
+  C(x)=\Bigl\{\,x,\;\frac{1}{x},\;1-x,\;\frac{1}{1-x},\;\frac{x}{x-1},\;\frac{x-1}{x}\,\Bigr\}\subset\F_q\setminus\{0,1\}.
 \]
-Meanwhile, the Klein four-group stabilizing $\{\infty,0,1,x\}$ in
-$\mathrm{PGL}(2,q)$ is represented by matrices of determinants
-$1$, $-x$, $x-1$, and $-x(x-1)$. All four lie in $\mathrm{PSL}(2,q)$ if and
-only if both $-x$ and $x-1$ are quadratic residues modulo $q$; otherwise the
-remaining two elements of $\mathrm{Stab}_{\mathrm{PGL}(2,q)}(\{\infty,0,1,x\})$
-have non-square determinant, fusing $C_3(x)$ with $C_3(1/x)=\{1/x,\,1-x,\,x/(x-1)\}$
-under $\mathrm{PSL}(2,q)$. Hence the $\mathrm{PSL}(2,q)$-orbits on
-$\binom{L_q}{4}$ correspond bijectively to the \emph{narrow classes}
+Any function $\tau\colon\F_q\setminus\{0,1\}\to\{0,1\}$ constant on classes
+$C(x)$ therefore defines a $\mathrm{PGL}(2,q)$-invariant $2$-colouring
+$\{a,b,c,d\}\mapsto\tau(x)$ of $\binom{L_q}{4}$.
+
+\subsection{The $\mathrm{PGL}(2,709)$-invariant witness $G_{710}$ for $R(5,7;4)\ge 711$}
+
+Take $q=709$. Here $\F_{709}\setminus\{0,1\}$ partitions into $119$ cross-ratio
+classes $C(x)$ ($117$ of size~$6$, $1$ of size~$3$, and $1$ of size~$2$). We
+define the $\mathrm{PGL}(2,709)$-invariant colouring $G_{710}$ on $L_{709}$
+($710$ points, $\binom{710}{4}=10\,498\,953\,535$ $4$-subsets) by setting
+$\tau=0$ on the following $42$ classes (each represented by its least element
+$d\in\{2,\dots,708\}$) and $\tau=1$ on the remaining $77$ classes:
+\begin{quote}
+\small\raggedright
+$d = 5$,\allowbreak\ $7$,\allowbreak\ $10$,\allowbreak\ $14$,\allowbreak\ $16$,\allowbreak\ $21$,\allowbreak\ $25$,\allowbreak\ $27$,\allowbreak\ $28$,\allowbreak\ $32$,\allowbreak\ $36$,\allowbreak\ $38$,\allowbreak\ $40$,\allowbreak\ $41$,\allowbreak\ $46$,\allowbreak\ $52$,\allowbreak\ $61$,\allowbreak\ $65$,\allowbreak\ $66$,\allowbreak\ $67$,\allowbreak\ $68$,\allowbreak\ $70$,\allowbreak\ $78$,\allowbreak\ $79$,\allowbreak\ $83$,\allowbreak\ $88$,\allowbreak\ $90$,\allowbreak\ $92$,\allowbreak\ $95$,\allowbreak\ $98$,\allowbreak\ $126$,\allowbreak\ $137$,\allowbreak\ $141$,\allowbreak\ $166$,\allowbreak\ $169$,\allowbreak\ $180$,\allowbreak\ $204$,\allowbreak\ $209$,\allowbreak\ $217$,\allowbreak\ $218$,\allowbreak\ $228$,\allowbreak\ $232$.
+\par
+\end{quote}
+Under $G_{710}$, colour~$0$ contains $3\,682\,801\,240$ of the
+$10\,498\,953\,535$ $4$-subsets ($35.08\%$, matching the asymmetric density
+needed to avoid colour-$0$ $5$-subsets and colour-$1$ $7$-subsets
+simultaneously). Writing \texttt{tau\_table} as the $709$-character string
+\texttt{--} followed by $\tau(2)\dots\tau(708)$, its SHA-256 digest is
+\[
+  \texttt{1c700d6603970e03fbbbb2495e3616c142072dcccd7c9603ed6594b7cfc35618}.
+\]
+
+\subsection{The $\mathrm{PSL}(2,683)$-invariant witness $F_{684}$ for $R(6,6;4)\ge 685$}
+
+For the diagonal number $R(6,6;4)$, $\mathrm{PGL}(2,q)$ becomes overconstrained
+above $q=599$, so we pass to the index-$2$ subgroup $\mathrm{PSL}(2,q)$ when
+$q\equiv 3\pmod 4$.
+
+\begin{lemma}\label{lem:3hom}
+If $q\equiv 3\pmod 4$, then $\mathrm{PSL}(2,q)$ acts transitively on the
+$\binom{q+1}{3}$ unordered $3$-subsets of $L_q$. Moreover, writing $C_3(x)=\{x,\,1/(1-x),\,(x-1)/x\}$, the orbits of
+$\mathrm{PSL}(2,q)$ on $\binom{L_q}{4}$ correspond bijectively to the narrow
+classes
 \[
   N(x)=\begin{cases}
     C_3(x) & \text{if } \left(\frac{-x}{q}\right)=+1 \text{ and } \left(\frac{x-1}{q}\right)=+1,\\[6pt]
     C_3(x)\cup C_3(1/x) & \text{otherwise,}
   \end{cases}
 \]
-and for any table $\sigma\colon\F_q\setminus\{0,1\}\to\{0,1\}$ constant on
+and for any function $\sigma\colon\F_q\setminus\{0,1\}\to\{0,1\}$ constant on
 narrow classes, assigning to $\{a,b,c,d\}$ ($a<b<c<d$) the colour
 \begin{equation}\label{eq:col}
   \chi_\sigma(\{a,b,c,d\})=\begin{cases}
@@ -213,133 +302,181 @@ narrow classes, assigning to $\{a,b,c,d\}$ ($a<b<c<d$) the colour
     \sigma(x^{-1}\bmod q) & \text{otherwise}
   \end{cases}
 \end{equation}
-defines a $\mathrm{PSL}(2,q)$-invariant $2$-colouring of $\binom{L_q}{4}$
-(matching the convention used for $F_{200}$ in~\cite{lysenstoen}).
+defines a $\mathrm{PSL}(2,q)$-invariant $2$-colouring of $\binom{L_q}{4}$,
+which is $(6,6;4)$-valid if and only if none of the $\binom{q-2}{3}$
+$6$-subsets containing $\{\infty,0,1\}$ is monochromatic.
+\end{lemma}
 
-\begin{remark}[Subgroup obstructions and $q\equiv 3\pmod 8$]\label{rem:dickson}
-By Dickson's classification of subgroups of $\mathrm{PSL}(2,q)$~\cite{dickson}, the symmetric
-group $S_4$ embeds into $\mathrm{PSL}(2,q)$ if and only if $q\equiv\pm 1\pmod 8$.
-When $q\equiv 7\pmod 8$ (such as $q=599,607,631,647$), octahedral $S_4$-orbits
-of size~$6$ in $L_q$ partition their $15$ $4$-subsets into very few
-$\mathrm{PSL}(2,q)$-orbits, generating dozens of short symmetric clauses of
-width $\le 6$. Choosing primes $q\equiv 3\pmod 8$ (which automatically satisfy
-$q\equiv 3\pmod 4$ while excluding $S_4\le\mathrm{PSL}(2,q)$), such as
-$q=619=8\cdot 77+3$, eliminates these octahedral short clauses while retaining
-roughly $1.25\times$ as many orbit variables as $\mathrm{PGL}(2,q)$.
-\end{remark}
+\begin{proof}
+Given any $3$-subset $T\subset L_q$, let $g\in\mathrm{PGL}(2,q)$ send its
+points in some order to $(\infty,0,1)$, and let $h(z)=1-z$ of determinant $-1$,
+which swaps $0$ and $1$ and fixes $\infty$. Since $q\equiv 3\pmod 4$, $-1$ is a
+non-square in $\F_q^\times$, so exactly one of $g$ and $h\circ g$ has square
+determinant and lies in $\mathrm{PSL}(2,q)$, proving transitivity on unordered
+$3$-subsets. On $S=\{\infty,0,1,x\}$, the alternating stabilizer
+$A_3=\{\mathrm{id},\,z\mapsto 1/(1-z),\,z\mapsto(z-1)/z\}\le\mathrm{PSL}(2,q)$
+generates $C_3(x)$, while the Klein four-group stabilizing $S$ in
+$\mathrm{PGL}(2,q)$ has determinants $1,-x,x-1,-x(x-1)$; all four are squares if
+and only if $-x$ and $x-1$ are squares, and otherwise a non-square-determinant
+stabilizer element composes with $z\mapsto 1/z$ to fuse $C_3(x)$ with
+$C_3(1/x)$ inside $\mathrm{PSL}(2,q)$ (matching~\cite[Lemma~4]{lysenstoen}).
+\end{proof}
 
-\section{The Witness $F_{620}$ for $q=619$}\label{sec:witness}
-
-Let $q=619$. Since $619$ is prime and $619\equiv 3\pmod 8$, $\F_{619}\setminus\{0,1\}$
-partitions into $130$ narrow classes under $\mathrm{PSL}(2,619)$ (comprising
-$53$ classes of size~$3$ and $77$ classes of size~$6$, whereas
-$\mathrm{PGL}(2,619)$ has $104$ classes).
-
-We define the colouring $F_{620}$ on $L_{619}$ ($620$ points,
-$\binom{620}{4}=6\,083\,590\,570$ $4$-subsets) via~\eqref{eq:rule}--\eqref{eq:col}
-by setting $\sigma=0$ on the following $62$ narrow classes (each identified by
-its smallest representative $d\in\{2,\dots,618\}$) and $\sigma=1$ on the
-remaining $68$ narrow classes:
+Take $q=683\equiv 3\pmod 8$. Under $\mathrm{PSL}(2,683)$,
+$\F_{683}\setminus\{0,1\}$ partitions into $142$ narrow classes ($57$ of
+size~$3$ and $85$ of size~$6$, compared with $114$ classes under
+$\mathrm{PGL}(2,683)$). We define $F_{684}$ on $L_{683}$ ($684$ points,
+$\binom{684}{4}=9\,040\,595\,751$ $4$-subsets) via~\eqref{eq:rule}
+and~\eqref{eq:col} by setting $\sigma=0$ on the following $70$ narrow classes
+(identified by their smallest representative $d\in\{2,\dots,682\}$) and
+$\sigma=1$ on the remaining $72$ narrow classes:
 \begin{quote}
 \small\raggedright
-$d = 2$,\allowbreak\ $4$,\allowbreak\ $5$,\allowbreak\ $6$,\allowbreak\ $7$,\allowbreak\ $9$,\allowbreak\ $10$,\allowbreak\ $14$,\allowbreak\ $15$,\allowbreak\ $16$,\allowbreak\ $18$,\allowbreak\ $26$,\allowbreak\ $27$,\allowbreak\ $28$,\allowbreak\ $30$,\allowbreak\ $32$,\allowbreak\ $38$,\allowbreak\ $39$,\allowbreak\ $41$,\allowbreak\ $43$,\allowbreak\ $44$,\allowbreak\ $45$,\allowbreak\ $47$,\allowbreak\ $48$,\allowbreak\ $50$,\allowbreak\ $51$,\allowbreak\ $52$,\allowbreak\ $57$,\allowbreak\ $61$,\allowbreak\ $62$,\allowbreak\ $66$,\allowbreak\ $67$,\allowbreak\ $68$,\allowbreak\ $69$,\allowbreak\ $70$,\allowbreak\ $71$,\allowbreak\ $72$,\allowbreak\ $74$,\allowbreak\ $78$,\allowbreak\ $81$,\allowbreak\ $82$,\allowbreak\ $84$,\allowbreak\ $96$,\allowbreak\ $102$,\allowbreak\ $108$,\allowbreak\ $109$,\allowbreak\ $110$,\allowbreak\ $118$,\allowbreak\ $122$,\allowbreak\ $126$,\allowbreak\ $137$,\allowbreak\ $158$,\allowbreak\ $167$,\allowbreak\ $174$,\allowbreak\ $175$,\allowbreak\ $208$,\allowbreak\ $213$,\allowbreak\ $215$,\allowbreak\ $230$,\allowbreak\ $249$,\allowbreak\ $250$,\allowbreak\ $321$.
+$d = 2$,\allowbreak\ $5$,\allowbreak\ $6$,\allowbreak\ $11$,\allowbreak\ $12$,\allowbreak\ $13$,\allowbreak\ $14$,\allowbreak\ $15$,\allowbreak\ $16$,\allowbreak\ $17$,\allowbreak\ $18$,\allowbreak\ $20$,\allowbreak\ $21$,\allowbreak\ $24$,\allowbreak\ $25$,\allowbreak\ $34$,\allowbreak\ $42$,\allowbreak\ $43$,\allowbreak\ $45$,\allowbreak\ $46$,\allowbreak\ $48$,\allowbreak\ $49$,\allowbreak\ $52$,\allowbreak\ $53$,\allowbreak\ $56$,\allowbreak\ $58$,\allowbreak\ $59$,\allowbreak\ $60$,\allowbreak\ $67$,\allowbreak\ $69$,\allowbreak\ $73$,\allowbreak\ $78$,\allowbreak\ $79$,\allowbreak\ $81$,\allowbreak\ $84$,\allowbreak\ $86$,\allowbreak\ $87$,\allowbreak\ $88$,\allowbreak\ $94$,\allowbreak\ $96$,\allowbreak\ $97$,\allowbreak\ $98$,\allowbreak\ $103$,\allowbreak\ $104$,\allowbreak\ $110$,\allowbreak\ $118$,\allowbreak\ $119$,\allowbreak\ $124$,\allowbreak\ $134$,\allowbreak\ $137$,\allowbreak\ $138$,\allowbreak\ $139$,\allowbreak\ $140$,\allowbreak\ $141$,\allowbreak\ $145$,\allowbreak\ $146$,\allowbreak\ $148$,\allowbreak\ $152$,\allowbreak\ $162$,\allowbreak\ $165$,\allowbreak\ $168$,\allowbreak\ $172$,\allowbreak\ $173$,\allowbreak\ $174$,\allowbreak\ $179$,\allowbreak\ $183$,\allowbreak\ $184$,\allowbreak\ $325$,\allowbreak\ $346$,\allowbreak\ $442$.
 \par
 \end{quote}
-Across $x\in\{2,\dots,618\}$, $\sigma(x)$ takes value $0$ at $303$ arguments
-and value $1$ at $314$ arguments. Extending $\sigma$ by $\sigma(0)=\sigma(1)=0$
-to a $619$-character ASCII string \texttt{table} of \texttt{0}s and \texttt{1}s,
-its SHA-256 digest is
+Note that $\sigma(x)\ne\sigma(x^{-1}\bmod 683)$ at $54$ values of
+$x\in\{2,\dots,682\}$ ($9$ split pairs of narrow classes), so $F_{684}$ is
+genuinely $\mathrm{PSL}(2,683)$-invariant and not $\mathrm{PGL}(2,683)$-invariant;
+it places $4\,540\,211\,082$ of the $9\,040\,595\,751$ $4$-subsets in colour~$0$.
+Extending $\sigma$ by $\sigma(0)=\sigma(1)=0$ to a $683$-character string
+\texttt{table}, its SHA-256 digest is
 \[
-  \texttt{6658e8cfc640c17e14b425f5b0a19bd03017ed1aba7a035752df5550199467c6}.
+  \texttt{0c9e37be4ee4b5493869cb55e75553e2165f49b805b7934d212d16d30225f482}.
 \]
+Our searches also produced valid $\mathrm{PSL}(2,q)$-invariant $(6,6;4)$-colourings
+at $q=619$, $631$, $647$, and $659$ (archived in the ancillary repository),
+showing in particular that octahedral subgroups $S_4\le\mathrm{PSL}(2,q)$ when
+$q\equiv 7\pmod 8$~\cite{dickson} ($q=631,647$) create shorter clauses without
+preventing satisfiability, while the empirical satisfiability threshold occurs
+at $q=683$ ($q=691$ reached a minimum of $2$ violated orbit clauses out of
+$863\,419$).
 
-\begin{proposition}\label{prop:valid}
-$F_{620}$ is a $(6,6;4)$-colouring of order $620$; that is, none of the
-$\binom{620}{6}=79\,532\,803\,405\,740$ $6$-subsets of $L_{619}$ has all $15$
-of its $4$-subsets in colour~$0$ or all $15$ in colour~$1$.
+\begin{proposition}\label{prop:proj}
+$G_{710}$ is a $(5,7;4)$-colouring of order $710$, and $F_{684}$ is a
+$(6,6;4)$-colouring of order $684$.
 \end{proposition}
 
 \begin{proof}[Computational verification]
-Established by the independent exhaustive verification described in
-Section~\ref{sec:verif}.
+Established by the independent exhaustive checks in Section~\ref{sec:verif}.
 \end{proof}
 
-Theorem~\ref{thm:main} follows immediately from Proposition~\ref{prop:valid}.
+Theorem~\ref{thm:four} follows from Proposition~\ref{prop:proj}.
 
-\section{Search Method and Independent Verification}\label{sec:verif}
+\section{Proof of Corollary~\ref{cor:rec}}\label{sec:conseq}
 
-\paragraph{Stochastic local search.}
-For $q=619$, deduplicating the orbit bitmasks of the $\binom{617}{3}=38\,957\,380$
-normalized $6$-subsets $\{\infty,0,1,x,y,z\}$ ($2\le x<y<z<619$) produces
-$620\,672$ distinct subsets of the $130$ narrow-class variables (yielding a
-monotone/anti-monotone $k$-SAT instance of $1\,241\,344$ clauses of width up
-to~$15$). To solve this instance efficiently without exceeding CPU cache
-bandwidth, each clause's live state (number of $1$-literals and bitwise XOR of
-their indices) was packed into $16$ bits, allowing incremental $O(1)$ retrieval
-of unique critical variables upon transitions into or out of $1$-hot and
-$(k-1)$-hot states. A portfolio combining exponential $k$-SAT
-probSAT~\cite{probsat} ($f(\mathrm{break})=c_b^{-\mathrm{break}}$ with a
-zero-break freebie rule) and WalkSAT/SKC with short tabu tenure located
-$F_{620}$ in $69\,993$ flips ($8.95$ seconds).
+\begin{proof}[Proof of Corollary~\ref{cor:rec}]
+By Song, Ye, and Liu~\cite{sonyl} (see~\cite[Section~7.1(e)]{survey}),
+\begin{align*}
+  R(p,q;4) &\ge 2R(p-1,q;4)-1 && \text{for } p,q>4,\\
+  R(p,q;4) &\ge (p-1)R(p-1,q;4)-p+2 && \text{for } p\ge 5,\; q\ge 7.
+\end{align*}
+Using $R(p,q;4)=R(q,p;4)$ and $R(5,7;4)\ge 711$ from Theorem~\ref{thm:four},
+successive applications of the second inequality at $(p,q)=(6,7)$, $(7,7)$,
+$(8,7)$, and $(8,8)$ yield
+\begin{align*}
+  R(6,7;4) &\ge 5\cdot 711 - 4 = 3\,551,\\
+  R(7,7;4) &\ge 6\cdot 3\,551 - 5 = 21\,301,\\
+  R(7,8;4) &= R(8,7;4) \ge 7\cdot 21\,301 - 6 = 149\,101,\\
+  R(8,8;4) &\ge 7\cdot 149\,101 - 6 = 1\,043\,701.
+\end{align*}
+Applying the first inequality six times to $R(7,6;4)=R(6,7;4)\ge 3\,551$ gives
+$R(13,6;4)\ge 2^6(3\,551-1)+1=227\,201$, improving $50\,689$
+in~\cite[Section~7.1(f)]{survey}. Finally, the multicolour stepping-up relation
+$R_k(n;r)>m \implies R_{k+3}(n+1;r+1)>2^m$ for $r\ge 3$~\cite{jaksy}
+(\cite[Section~7.5(b)]{survey}) applied to $R_3(4;3)\ge 100>99$ yields
+$R_6(5;4)>2^{99}$, and the Erd\H{o}s--Hajnal stepping-up lemma
+$R(n,n;r)>m \implies R(2n+r-4,2n+r-4;r+1)>2^m$~\cite[p.~106]{grs}
+(\cite[Section~7.5(a)]{survey}) applied to $R(6,6;4)\ge 685>684$ yields
+$R(12,12;5)>2^{684}$.
+\end{proof}
 
-\paragraph{Clean-room verification.}
-To eliminate any reliance on solver data structures or group-theoretic
-shortcuts, $F_{620}$ was verified by two separate programs sharing no code with
-the solver (\texttt{verify\_r664\_psl.rs} and \texttt{verify\_r664\_psl.py}):
+\section{Search Methods and Clean-Room Verification}\label{sec:verif}
+
+\paragraph{Computational search.}
+Three complementary solver architectures produced the witnesses on a single
+workstation (NVIDIA GeForce RTX~3090 GPU and multi-core CPU):
 \begin{enumerate}
-\item \emph{Direct $\mathrm{SL}(2,619)$ well-definedness and $3$-homogeneity.}
-  Rather than invoking Lemma~\ref{lem:3hom} abstractly, \texttt{verify\_r664\_psl.rs}
-  works directly with $2\times 2$ matrices $M=\bigl(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\bigr)$
-  satisfying $ad-bc\equiv 1\pmod{619}$. It first confirms that on every tested
-  $4$-subset, all $12$ ordered lifts in $\mathrm{SL}(2,619)$ mapping three
-  points to $(\infty,0,1)$ produce identical values of $\sigma(\lambda)$. Next,
-  it iterates exhaustively over all $\binom{620}{3}=39\,529\,340$ unordered
-  $3$-subsets $\{u,v,w\}\subset L_{619}$ and explicitly constructs and checks a
-  matrix $M\in\mathrm{SL}(2,619)$ with $\det(M)\equiv 1\pmod{619}$ and
-  $M(\{u,v,w\})=\{\infty,0,1\}$. In addition, $1\,000\,000$ random pairs
-  $(E,M)\in\binom{L_{619}}{4}\times\mathrm{SL}(2,619)$ were tested directly to
-  confirm $\chi_\sigma(M(E))=\chi_\sigma(E)$.
-\item \emph{Exhaustive $6$-subset verification.}
-  The verifier examines every one of the $\binom{617}{3}=38\,957\,380$
-  $6$-subsets containing $\{\infty,0,1\}$. Every such $6$-subset has between
-  $1$ and $14$ of its $15$ $4$-subsets in colour~$1$, leaving zero
-  monochromatic $6$-subsets in colour~$0$ and zero in colour~$1$. Combined with
-  Step~1, this exhaustively covers all $\binom{620}{6}$ $6$-subsets of
-  $L_{619}$. As an additional symmetry-free sanity check, $500\,000$ arbitrary
-  $6$-subsets sampled uniformly from $L_{619}$ were evaluated directly from raw
-  $4$-subsets without normalization, again with zero violations.
-\item \emph{Cross-check with independent rule reconstructor.}
-  The Python verifier \path{verify_r664_psl.py} implements~\eqref{eq:rule}--\eqref{eq:col}
-  using only the Python standard library, verifies the SHA-256 digest and narrow
-  class constancy of \path{R664_620_points_rule.json}, and confirms exact
-  agreement with the narrow-class convention of~\cite{lysenstoen}.
+\item \emph{Persistent ternary probSAT with clause-weight smoothing ($T_{99}$).}
+  Deduplicating the $G(98,67)$-orbit sets of $4$-subsets containing $0$ yields
+  $12\,839$ ternary clauses over $545$ variables in $\{0,1,2\}$. A $246$-block
+  CUDA kernel maintaining live violated-clause arrays in on-chip shared memory
+  and combining exponential probSAT~\cite{probsat} with gentle additive
+  clause-weight bumps on low-violation plateaus found $T_{99}$ in $11.1$
+  seconds.
+\item \emph{Counterexample-guided CDCL refinement ($G_{710}$).}
+  At $q=709$, there are $\binom{707}{4}=10\,368\,268\,935$ normalized
+  $7$-subsets containing $\{\infty,0,1\}$, making upfront CNF generation
+  infeasible. Instead, we loaded only the exact $5$-subset clauses into
+  \texttt{CaDiCaL}~\cite{cadical} (via PySAT~\cite{pysat}) with positive-phase
+  bias near $0.62$, paired with a persistent native Rust $7$-clique oracle that
+  detects monochromatic colour-$1$ $7$-subsets via bitmask pruning in
+  milliseconds and appends diverse blocking clauses on demand. Convergence to
+  zero $7$-cliques occurred at $q=709$ in $377$ CEGAR rounds ($38\,632$ learned
+  $7$-clauses, $18.7$ seconds).
+\item \emph{GPU cooperative-block probSAT with elite cloning ($F_{684}$).}
+  For $q=683$, deduplicating the $\binom{681}{3}=52\,405\,220$ normalized
+  $6$-subsets gives $833\,921$ two-sided clauses over $142$ narrow-class
+  variables. Packing each clause state (count and bitwise XOR of $1$-literals)
+  into $16$ bits so all $256$ threads of each CUDA block cooperatively update
+  variable adjacency lists in parallel, $328$ concurrent exponential probSAT
+  walkers located $F_{684}$ in $8.20\times 10^6$ flips ($36.4$ seconds).
 \end{enumerate}
-The entire Rust verification suite completes in under $8$ seconds on a desktop
-CPU.
+
+\paragraph{Independent clean-room verification.}
+Each witness was verified by standalone Rust and Python programs sharing zero
+code with the search solvers:
+\begin{itemize}
+\item \emph{Verification of $T_{99}$ (\path{verify_r444_3.rs}, \path{verify_all_records.py}).}
+  \path{verify_r444_3.rs} reconstructs all $156\,849$ triple colours explicitly,
+  checks $G(98,67)$-invariance across all $294$ group elements without
+  collision, and inspects all $\binom{99}{4}=3\,764\,376$ $4$-subsets directly
+  with no symmetry reduction ($0.02\text{ s}$, zero monochromatic $4$-subsets).
+\item \emph{Verification of $G_{710}$ (\path{verify_r574_psl_1mod4.rs}, \path{verify_all_records.py}).}
+  Both verifiers confirm SHA-256 integrity, $6$-fold cross-ratio class
+  constancy, and $\mathrm{SL}(2,709)$-invariance across $500\,000$ random
+  transformations, then exhaustively verify all $\binom{707}{2}=249\,571$
+  normalized $5$-subsets (zero colour-$0$ $K_5^{(4)}$) and all
+  $\binom{707}{4}=10\,368\,268\,935$ normalized $7$-subsets via exact pair
+  filtering (zero colour-$1$ $K_7^{(4)}$, $<0.6\text{ s}$), plus $400\,000$
+  unnormalized random $5$- and $7$-subsets.
+\item \emph{Verification of $F_{684}$ (\path{verify_r664_psl.rs}, \path{verify_all_records.py}).}
+  \path{verify_r664_psl.rs} explicitly constructs a matrix in
+  $\mathrm{SL}(2,683)$ ($\det\equiv 1\pmod{683}$) mapping $\{u,v,w\}$ onto
+  $\{\infty,0,1\}$ for every one of the $\binom{684}{3}=53\,101\,884$
+  $3$-subsets of $L_{683}$, tests $1\,000\,000$ random $\mathrm{SL}(2,683)$
+  transformations, exhaustively checks all $\binom{681}{3}=52\,405\,220$
+  $6$-subsets containing $\{\infty,0,1\}$ (every $6$-subset has between $1$ and
+  $14$ colour-$1$ $4$-subsets), and tests $500\,000$ unnormalized random
+  $6$-subsets ($4.5\text{ s}$ total).
+\end{itemize}
 
 \subsection*{Data Availability}
-The machine-readable witness file \path{R664_620_points_rule.json}, the
-clean-room verifiers \path{verify_r664_psl.rs} and \path{verify_r664_psl.py},
-and the local-search solver accompany this note as ancillary files and are
-permanently archived at Zenodo (\url{https://doi.org/10.5281/zenodo.24462207})
-and on GitHub (\url{https://github.com/ramuza0113-sketch/ramsey-r664-621}).
+{\sloppy
+All machine-readable witness files (\path{R4443_99_points_rule.json},
+\path{R574_710_points_rule.json}, \path{R664_684_points_rule.json}, and
+intermediate witnesses), the standalone clean-room verification programs
+(\path{verify_r444_3.rs}, \path{verify_r574_psl_1mod4.rs},
+\path{verify_r664_psl.rs}, and \path{verify_all_records.py}), and the search
+solvers are archived permanently at Zenodo
+(\url{https://doi.org/10.5281/zenodo.24462206}) and on GitHub
+(\url{https://github.com/ramuza0113-sketch/ramsey-r664-621}).\par}
 
 \subsection*{Acknowledgments}
 The author thanks Stanis{\l}aw P.\ Radziszowski for maintaining the dynamic
-survey on small Ramsey numbers and Christian Lysenst{\o}en whose recent
-preprint~\cite{lysenstoen} motivated this $\mathrm{PSL}(2,q)$ investigation for
-$R(6,6;4)$. In accordance with journal policy on artificial intelligence tools,
-the author discloses that an AI assistant (Google DeepMind Antigravity) was
-used to assist in implementing the Rust local-search and clean-room
-verification programs, checking algebraic details of Lemma~\ref{lem:3hom} and
-Remark~\ref{rem:dickson}, and drafting and polishing the English exposition
-and \LaTeX{} formatting. Every mathematical argument, citation, and
-computational output was checked against independent verification, and the
-witness $F_{620}$ is deterministically verifiable in seconds from the
-standalone ancillary code; the author takes full responsibility for all content
-of this manuscript.
+survey on small Ramsey numbers and Christian Lysenst{\o}en and H.\ Yang whose
+recent 2026 constructions motivated this investigation. In accordance with
+journal policy on artificial intelligence tools, the author discloses that an AI
+assistant (Google DeepMind Antigravity) was used to assist in implementing the
+CUDA local-search, CEGAR, and clean-room verification programs, checking
+group-theoretic and recurrence calculations, and drafting and polishing the
+English exposition and \LaTeX{} formatting. Every mathematical argument,
+citation, and computational claim was checked against independent zero-shared-code
+verification, and all three witnesses are printed in full in this manuscript and
+deterministically verifiable in seconds; the author takes full responsibility
+for all content of this paper.
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 \small
 
 \bibitem{probsat}
@@ -349,15 +486,53 @@ role of make versus break},
 in: Theory and Applications of Satisfiability Testing -- SAT 2012,
 Lecture Notes in Comput.\ Sci.\ 7317, Springer, 2012, 16--29.
 
+\bibitem{cadical}
+A.~Biere, K.~Fazekas, M.~Fleury, and M.~Heisinger,
+\emph{CaDiCaL, Kissat, Paracooba, Plingeling and Treengeling entering the SAT
+Competition 2020},
+in: Proc.\ of SAT Competition 2020 -- Solver and Benchmark Descriptions,
+Univ.\ of Helsinki, 2020, 51--53.
+
 \bibitem{dickson}
 L.~E. Dickson,
 \emph{Linear Groups: With an Exposition of the Galois Field Theory},
 B.~G. Teubner, Leipzig, 1901 (reprinted by Dover, New York, 1958).
 
+\bibitem{dyb3}
+J.~Dybizba\'nski,
+personal communication to S.~P. Radziszowski (2018), cited in~\cite{survey};
+data at \url{https://inf.ug.edu.pl/ramsey}.
+
+\bibitem{grs}
+R.~L. Graham, B.~L. Rothschild, and J.~H. Spencer,
+\emph{Ramsey Theory}, 2nd ed., John Wiley \& Sons, New York, 1990.
+
+\bibitem{pysat}
+A.~Ignatiev, A.~Morgado, and J.~Marques-Silva,
+\emph{PySAT: A Python toolkit for prototyping with SAT oracles},
+in: Theory and Applications of Satisfiability Testing -- SAT 2018,
+Lecture Notes in Comput.\ Sci.\ 10929, Springer, 2018, 428--437.
+
+\bibitem{jaksy}
+B.~Jartoux, C.~Keller, S.~Smorodinsky, and Y.~Yuditsky,
+\emph{On multicolour Ramsey numbers and subset coloring of hypergraphs},
+SIAM J.\ Discrete Math.\ \textbf{36} (2022), no.~3, 1848--1860.
+
+\bibitem{liu}
+S.~C. Liu,
+\emph{Lower bounds for small Ramsey numbers on hypergraphs},
+preprint, 2019, arXiv:1906.00132.
+
 \bibitem{lysenstoen}
 C.~Lysenst{\o}en,
 \emph{New lower bounds for six small hypergraph Ramsey numbers},
 preprint, November 2026, arXiv:2611.25143v1.
+
+\bibitem{mr1}
+B.~D. McKay and S.~P. Radziszowski,
+\emph{The first classical Ramsey number for hypergraphs is computed},
+in: Proc.\ Second Annual ACM--SIAM Symposium on Discrete Algorithms (SODA '91),
+1991, 304--308.
 
 \bibitem{ozdemir}
 K.~\"Ozdemir,
@@ -371,6 +546,17 @@ S.~P. Radziszowski,
 \emph{Small Ramsey numbers},
 Electron.\ J.\ Combin., Dynamic Survey DS1, revision~\#18 (24 April 2026),
 \url{https://doi.org/10.37236/21}.
+
+\bibitem{sonyl}
+E.~Song, W.~Ye, and Y.~Liu,
+\emph{New lower bounds for Ramsey number $R(p,q;4)$},
+Discrete Math.\ \textbf{145} (1995), 343--346.
+
+\bibitem{yang}
+H.~Yang,
+\emph{Three improved lower bounds for hypergraph Ramsey numbers},
+data deposit, Zenodo, 2026,
+\url{https://doi.org/10.5281/zenodo.24301648}.
 
 \end{thebibliography}
 

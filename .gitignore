@@ -1,4 +1,5 @@
 *.exe
 *.pdb
 *.zip
+__pycache__/
 SUBMISSION_GUIDE_JA.md
