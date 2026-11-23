@@ -1,0 +1,41 @@
+{
+  "title": "An Improved Lower Bound for the Hypergraph Ramsey Number R(6,6;4)",
+  "upload_type": "publication",
+  "publication_type": "preprint",
+  "description": "Explicit PSL(2, 619)-invariant 2-colouring F_620 of the 4-subsets of the 620-point projective line F_619 U {infinity} with no monochromatic 6-subset in either colour, establishing R(6, 6; 4) >= 621. Accompanied by a 5-page note (PDF/LaTeX), machine-readable JSON rule table (SHA-256: 6658e8cfc640c17e14b425f5b0a19bd03017ed1aba7a035752df5550199467c6), and zero-shared-code Rust and Python clean-room verifiers.",
+  "creators": [
+    {
+      "name": "Hashimoto, Katsutoshi",
+      "affiliation": "Independent Researcher, Japan",
+      "orcid": "0009-0009-8292-5085"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "hypergraph Ramsey numbers",
+    "Ramsey theory",
+    "constructive lower bounds",
+    "projective special linear group",
+    "PSL(2,q)",
+    "cross-ratio",
+    "stochastic local search",
+    "05D10"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.37236/21",
+      "relation": "cites",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.23689461",
+      "relation": "cites",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "arXiv:2611.25143",
+      "relation": "cites",
+      "scheme": "arxiv"
+    }
+  ]
+}
