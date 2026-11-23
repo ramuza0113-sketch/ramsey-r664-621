@@ -75,30 +75,42 @@ computational verification.\\
 
 \section{Introduction}
 
-For integers $k,l\ge t\ge 2$, the $t$-uniform hypergraph Ramsey number
-$R(k,l;t)$ is the least $n$ such that every $2$-colouring of the
-$\binom{n}{t}$ $t$-subsets of an $n$-element set yields a monochromatic
-$k$-subset in colour~$0$ or a monochromatic $l$-subset in colour~$1$. While
-classical graph Ramsey numbers ($t=2$) have been studied extensively, exact
-values for $t=4$ remain scarce: $R(5,5;4)$ is known only to be at least $49$
-\cite{ozdemir}, and the diagonal number $R(6,6;4)$ has seen rapid constructive
-progress in 2026. Specifically, the bound $R(6,6;4)\ge 133$ recorded in
-Revision~\#18 of Radziszowski's dynamic survey~\cite{survey} was raised to
-$317$ by \"Ozdemir~\cite{ozdemir} and very recently to $601$ by
-Lysenst{\o}en~\cite{lysenstoen} via a $\mathrm{PGL}(2,599)$-invariant colouring
-of the projective line $\F_{599}\cup\{\infty\}$.
+How large can a finite set be if its $4$-element subsets are coloured with two
+colours so that no $6$ points have all $\binom{6}{4}=15$ of their $4$-subsets
+monochromatic? This question defines the diagonal $4$-uniform hypergraph Ramsey
+number $R(6,6;4)$---more generally, $R(k,l;t)$ is the least integer $n$ such
+that every $2$-colouring of $\binom{[n]}{t}$ yields a colour-$0$ $k$-subset or
+a colour-$1$ $l$-subset. Since Erd\H{o}s, Hajnal, and Rado initiated the study
+of hypergraph Ramsey numbers in the 1960s and McKay and Radziszowski determined
+$R(4,4;3)=13$, constructive lower bounds for small $t$-uniform Ramsey numbers
+have served as a central benchmark connecting finite geometry, permutation
+groups, and combinatorial search~\cite{survey}.
 
-In~\cite{lysenstoen}, $\mathrm{PSL}(2,q)$-invariant colourings were employed
-for the off-diagonal number $R(5,6;4)$ at $q=199$, whereas only full
-$\mathrm{PGL}(2,q)$ invariance was searched for $R(6,6;4)$. In this note we
-observe that for primes $q\equiv 3\pmod 4$, passing from $\mathrm{PGL}(2,q)$
-to $\mathrm{PSL}(2,q)$ preserves $3$-homogeneity on unordered triples of the
-projective line---keeping the normalized verification space at exact size
-$\binom{q-2}{3}$---while splitting roughly one quarter of the cross-ratio
-orbits in two. Combining this enlarged search space with a cache-resident
-hybrid stochastic local search over primes $q\equiv 3\pmod 8$ (which avoid
-octahedral $S_4$ subgroups in $\mathrm{PSL}(2,q)$), we obtain an explicit
-witness at $q=619$.
+For $t=4$, exact values remain out of reach even for $R(5,5;4)\ge 49$~\cite{ozdemir},
+while $R(6,6;4)$ has undergone striking constructive progress in 2026: the
+long-standing bound $R(6,6;4)\ge 133$ in Revision~\#18 of Radziszowski's
+dynamic survey~\cite{survey} was raised to $317$ by \"Ozdemir~\cite{ozdemir}
+and very recently to $601$ by Lysenst{\o}en~\cite{lysenstoen} using a
+$\mathrm{PGL}(2,599)$-invariant colouring of the projective line
+$\F_{599}\cup\{\infty\}$.
+
+The purpose of this note is both to improve this bound and to explain two
+structural mechanisms governing projective-line Ramsey constructions for
+$4$-subsets. In~\cite{lysenstoen}, $\mathrm{PSL}(2,q)$-invariant colourings
+were employed for the off-diagonal number $R(5,6;4)$ at $q=199$, whereas only
+full $\mathrm{PGL}(2,q)$ invariance was searched for $R(6,6;4)$. First, we note
+(Lemma~\ref{lem:3hom}) that whenever $q\equiv 3\pmod 4$, restricting from
+$\mathrm{PGL}(2,q)$ to its index-$2$ subgroup $\mathrm{PSL}(2,q)$ preserves
+transitivity on unordered $3$-subsets of the projective line---keeping the
+normalized verification space at exact size $\binom{q-2}{3}$---while splitting
+roughly one quarter of the cross-ratio orbits in two. Second, by Dickson's
+classification of subgroups of $\mathrm{PSL}(2,q)$~\cite{dickson}, octahedral
+subgroups isomorphic to $S_4$ occur in $\mathrm{PSL}(2,q)$ if and only if
+$q\equiv\pm 1\pmod 8$; passing from $q\equiv 7\pmod 8$ to primes
+$q\equiv 3\pmod 8$ eliminates $6$-point octahedral orbits whose $15$
+$4$-subsets collapse into short symmetric clauses (Remark~\ref{rem:dickson}).
+Combining these two observations with a cache-resident hybrid stochastic local
+search yields an explicit witness at $q=619=8\cdot 77+3$.
 
 \begin{theorem}\label{thm:main}
 $R(6,6;4)\ge 621$.
@@ -204,7 +216,7 @@ narrow classes, assigning to $\{a,b,c,d\}$ ($a<b<c<d$) the colour
 defines a $\mathrm{PSL}(2,q)$-invariant $2$-colouring of $\binom{L_q}{4}$
 (matching the convention used for $F_{200}$ in~\cite{lysenstoen}).
 
-\begin{remark}[Subgroup obstructions and $q\equiv 3\pmod 8$]
+\begin{remark}[Subgroup obstructions and $q\equiv 3\pmod 8$]\label{rem:dickson}
 By Dickson's classification of subgroups of $\mathrm{PSL}(2,q)$~\cite{dickson}, the symmetric
 group $S_4$ embeds into $\mathrm{PSL}(2,q)$ if and only if $q\equiv\pm 1\pmod 8$.
 When $q\equiv 7\pmod 8$ (such as $q=599,607,631,647$), octahedral $S_4$-orbits
@@ -310,16 +322,22 @@ The machine-readable witness file \path{R664_620_points_rule.json}, the
 clean-room verifiers \path{verify_r664_psl.rs} and \path{verify_r664_psl.py},
 and the local-search solver accompany this note as ancillary files and are
 permanently archived at Zenodo (\url{https://doi.org/10.5281/zenodo.24462207})
-and GitHub (\url{https://github.com/ramuza0113-sketch/ramsey-r664-621}).
+and on GitHub (\url{https://github.com/ramuza0113-sketch/ramsey-r664-621}).
 
 \subsection*{Acknowledgments}
 The author thanks Stanis{\l}aw P.\ Radziszowski for maintaining the dynamic
 survey on small Ramsey numbers and Christian Lysenst{\o}en whose recent
 preprint~\cite{lysenstoen} motivated this $\mathrm{PSL}(2,q)$ investigation for
-$R(6,6;4)$. AI-based tools were used in algorithm development and manuscript
-preparation; the author takes full responsibility for all mathematical claims,
-and the bound is independently verifiable from the accompanying ancillary
-files.
+$R(6,6;4)$. In accordance with journal policy on artificial intelligence tools,
+the author discloses that an AI assistant (Google DeepMind Antigravity) was
+used to assist in implementing the Rust local-search and clean-room
+verification programs, checking algebraic details of Lemma~\ref{lem:3hom} and
+Remark~\ref{rem:dickson}, and drafting and polishing the English exposition
+and \LaTeX{} formatting. Every mathematical argument, citation, and
+computational output was checked against independent verification, and the
+witness $F_{620}$ is deterministically verifiable in seconds from the
+standalone ancillary code; the author takes full responsibility for all content
+of this manuscript.
 
 \begin{thebibliography}{9}
 \small
