@@ -1,7 +1,10 @@
 # An Improved Lower Bound for the 4-Uniform Hypergraph Ramsey Number: $R(6, 6; 4) \ge 621$
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24462207.svg)](https://doi.org/10.5281/zenodo.24462207)
+
 **Author**: Katsutoshi Hashimoto (Independent Researcher, Japan — `ramuza0113@gmail.com` · [ORCID: `0009-0009-8292-5085`](https://orcid.org/0009-0009-8292-5085))  
 **Date**: November 23, 2026  
+**DOI**: [`10.5281/zenodo.24462207`](https://doi.org/10.5281/zenodo.24462207)  
 **Preprint / Note**: [`paper/main.pdf`](paper/main.pdf) ([`paper/main.tex`](paper/main.tex))  
 **Main Theorem**: $R(6, 6; 4) \ge 621$ (explicit $\mathrm{PSL}(2, 619)$-invariant 2-coloring $F_{620}$ on $620$ points, $\mathbb{P}^1(\mathbb{F}_{619})$)
 
@@ -64,8 +67,9 @@ It executes 6 independent computational checks:
   title        = {An Improved Lower Bound for the Hypergraph Ramsey Number {$R(6,6;4)$}},
   year         = {2026},
   month        = nov,
-  note         = {Explicit $\mathrm{PSL}(2,619)$-invariant witness proving $R(6,6;4) \ge 621$},
-  howpublished = {\url{https://github.com/ramuza0113-sketch/ramsey-r664-621}}
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.24462207},
+  url          = {https://doi.org/10.5281/zenodo.24462207}
 }
 ```
 
