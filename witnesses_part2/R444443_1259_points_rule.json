@@ -1,0 +1,23 @@
+{
+  "claim": "R(4, 4, 4, 4, 4; 3) >= 1260",
+  "uniformity": 3,
+  "colors": 5,
+  "thresholds": [
+    4,
+    4,
+    4,
+    4,
+    4
+  ],
+  "points": 1259,
+  "construction_type": "aglp_2homogeneous",
+  "n_mod": 1259,
+  "multiplier_a": 4,
+  "multiplier_order": 629,
+  "n_infinity": 0,
+  "group": "AGL+(1, 1259)",
+  "orbit_rule": "2-homogeneous action of AGL+(1, 1259) = {x -> s*x + b mod 1259 : s in QR_1259} on F_1259. Every triple {a,b,c} (a < b < c) maps to {0, 1, z} with z = (c-a)*(b-a)^(-1) mod p if (b-a) in QR_1259 else (c-b)*(a-b)^(-1) mod p; orbits are ordered by increasing smallest z in {2..1258} (equivalently, lexicographically smallest triple {0, 1, z_min}).",
+  "num_orbits": 419,
+  "orbit_string": "40304140421412324301234121143233003422144313124340230133332314034023310011332124323020030340130333402424021442242224313224321342223433444343122243044034044020003403414324004214431311423040243424241034023404344322424230043423310221443043042043200132031402303330423043234044220041424112400340341404013042120103033044331413122413232132430024241332101111440202034130013410403440222320032323434200233330040340203340411210330",
+  "orbit_string_sha256": "ed35a26a7f431afa810e62c6396d26b95ad8118fb5f7dca0152b43cb2c22b2b7"
+}

@@ -1,0 +1,20 @@
+{
+  "claim": "R(5, 7; 3) >= 284",
+  "uniformity": 3,
+  "colors": 2,
+  "thresholds": [
+    5,
+    7
+  ],
+  "points": 283,
+  "construction_type": "affine_plus_infinity",
+  "n_mod": 283,
+  "multiplier_a": 9,
+  "multiplier_order": 141,
+  "n_infinity": 0,
+  "group": "AGL+(1, 283)",
+  "orbit_rule": "Orbits of 3-subsets of Z_283 under x -> a^j * x + b mod 283 (a = 9, order 141) ordered by lexicographically smallest representative triple.",
+  "num_orbits": 95,
+  "orbit_string": "10011111111111011011011011110010011001111101100001011100010010110110110101001011101111101010010",
+  "orbit_string_sha256": "d9e743f89f228e8bdc6bf29d275614959451214da68233d53ce2955b4d78e32e"
+}

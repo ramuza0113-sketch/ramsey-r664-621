@@ -1,0 +1,21 @@
+{
+  "claim": "R(4, 4, 5; 3) >= 164",
+  "uniformity": 3,
+  "colors": 3,
+  "thresholds": [
+    4,
+    4,
+    5
+  ],
+  "points": 163,
+  "construction_type": "aglp_2homogeneous",
+  "n_mod": 163,
+  "multiplier_a": 4,
+  "multiplier_order": 81,
+  "n_infinity": 0,
+  "group": "AGL+(1, 163)",
+  "orbit_rule": "2-homogeneous action of AGL+(1, 163) = {x -> s*x + b mod 163 : s in QR_163} on F_163. Every triple {a,b,c} (a < b < c) maps to {0, 1, z} with z = (c-a)*(b-a)^(-1) mod p if (b-a) in QR_163 else (c-b)*(a-b)^(-1) mod p; orbits are ordered by increasing smallest z in {2..162} (equivalently, lexicographically smallest triple {0, 1, z_min}).",
+  "num_orbits": 55,
+  "orbit_string": "0221010100121100222212222122120202201210001221021022221",
+  "orbit_string_sha256": "bedfb1b228ab5ea9b06b8362951c3398a4cb5f05183125e1ca69d2154d1dd32f"
+}

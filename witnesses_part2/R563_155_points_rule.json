@@ -1,0 +1,20 @@
+{
+  "claim": "R(5, 6; 3) >= 156",
+  "uniformity": 3,
+  "colors": 2,
+  "thresholds": [
+    5,
+    6
+  ],
+  "points": 155,
+  "construction_type": "affine_plus_infinity",
+  "n_mod": 155,
+  "multiplier_a": 3,
+  "multiplier_order": 60,
+  "n_infinity": 0,
+  "group": "G(155, 3)",
+  "orbit_rule": "Orbits of 3-subsets of Z_155 under x -> 3^j * x + b mod 155 (order 60) ordered by lexicographically smallest representative triple.",
+  "num_orbits": 71,
+  "orbit_string": "11111111111111111111111111000000100000100010001100000110010100011100111",
+  "orbit_string_sha256": "a8b4d69765aacc26272a8169abdf3f254d12c12df16df20e143590c88372ff70"
+}

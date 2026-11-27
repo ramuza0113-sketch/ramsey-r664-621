@@ -1,0 +1,20 @@
+{
+  "claim": "R(4, 8; 3) >= 164",
+  "uniformity": 3,
+  "colors": 2,
+  "thresholds": [
+    4,
+    8
+  ],
+  "points": 163,
+  "construction_type": "affine_plus_infinity",
+  "n_mod": 163,
+  "multiplier_a": 4,
+  "multiplier_order": 81,
+  "n_infinity": 0,
+  "group": "AGL+(1, 163)",
+  "orbit_rule": "Orbits of 3-subsets of Z_163 under x -> a^j * x + b mod 163 (a = 4, order 81) ordered by lexicographically smallest representative triple.",
+  "num_orbits": 55,
+  "orbit_string": "1111011101111111011111110001111010010111011100111011001",
+  "orbit_string_sha256": "c38b8ae9c5583c5acf1ed3fe6d0da80784f636b971fe36d374b9c7485ec31134"
+}

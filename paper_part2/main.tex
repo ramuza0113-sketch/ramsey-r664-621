@@ -1,0 +1,630 @@
+\ifx\XeTeXversion\undefined\pdfoutput=1\fi
+\documentclass[11pt]{article}
+
+\usepackage[margin=1.05in]{geometry}
+\ifx\XeTeXversion\undefined
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+  \usepackage[expansion=false]{microtype}
+\fi
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+
+\emergencystretch=1.5em
+\clubpenalty=10000
+\widowpenalty=10000
+
+% === AUTHOR CONFIGURATION ===
+\newcommand{\AuthorName}{Katsutoshi Hashimoto}
+\newcommand{\AuthorAffiliation}{Independent Researcher, Japan}
+\newcommand{\AuthorEmail}{ramuza0113@gmail.com}
+\newcommand{\AuthorORCID}{0009-0009-8292-5085}
+% ============================
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\hypersetup{
+  pdftitle={Constructive Lower Bounds for Multicolour and Off-Diagonal Hypergraph Ramsey Numbers},
+  pdfauthor={\AuthorName},
+}
+
+\title{\bfseries Constructive Lower Bounds for Multicolour and\\ Off-Diagonal Hypergraph Ramsey Numbers}
+
+\author{\AuthorName\\[4pt]
+\small \AuthorAffiliation\\[2pt]
+\small\texttt{\AuthorEmail} \;\textperiodcentered\; \href{https://orcid.org/\AuthorORCID}{ORCID: \texttt{\AuthorORCID}}}
+
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $R(k_1,\dots,k_r;t)$ denote the smallest integer $n$ such that every
+$r$-colouring of the $t$-element subsets of an $n$-element set contains, for
+some colour $c\in\{1,\dots,r\}$, a monochromatic $k_c$-element subset in
+colour~$c$, and write $R_r(k;t)$ when $k_1=\dots=k_r=k$. Using three families of
+group-invariant constructions---multi-infinity cyclic relaxations on
+$\Z_m\cup\{\infty_0,\dots,\infty_{s-1}\}$, infinity-free $2$-homogeneous and
+odd-order affine actions on $\F_p$, and narrow or chiral-split
+$\mathrm{PSL}(2,q)$ actions on $\F_q\cup\{\infty\}$ with $q\equiv 2,3\pmod 5$---paired
+with GPU stochastic local search and counterexample-guided SAT refinement, we
+construct sixteen explicit hypergraph colourings establishing:
+\begin{align*}
+  &R(5,5;3)\ge 110,\quad R(6,6;3)\ge 308,\quad R(5,7;3)\ge 284,\\
+  &R(5,6;3)\ge 156,\quad R(4,8;3)\ge 164,\quad R(4,7;3)\ge 108,\\
+  &R(4,4,4;3)\ge 103,\quad R(4,4,5;3)\ge 164,\quad R(4,5,5;3)\ge 272,\\
+  &R_4(4;3)\ge 381,\quad R_5(4;3)\ge 1\,260,\quad R_6(4;3)\ge 3\,780,\quad
+   R_7(4;3)\ge 5\,232,\\
+  &R_3(5;4)\ge 969,\quad R_4(5;4)\ge 3\,805,\quad R_5(5;4)\ge 9\,439.
+\end{align*}
+In particular, $R(5,5;3)\ge 110$ improves the bound $88$ in Revision~\#18 of
+Radziszowski's dynamic survey (and the recent 2026 bounds $99$ and $101$ of
+Lysenst{\o}en), while $R(4,4,4;3)\ge 103$ improves $79$ in the survey, $84$
+(Yang, 2026), and $100$ in the author's preceding note. Via the lexicographic
+product theorem of Bruce, Budden, and Hiller and known stepping-up lemmas, these
+constructions further imply $R(5,5,5;3)\ge 11\,882$,
+$R_4(5;3)\ge 141\,158\,162$, $R_r(5;3)\ge 109^{2^{r-2}}+1$ for all $r\ge 3$,
+$R(11,11;4)>2^{307}$, $R_6(5;4)>2^{102}$, $R_{10}(5;4)>2^{5\,231}$, and
+$R_8(6;5)>2^{9\,438}$. All sixteen witnesses are archived in a uniform
+machine-readable format and verified by standalone zero-dependency Rust and
+Python clean-room programs in $2.5$ seconds.
+\end{abstract}
+
+\medskip
+\noindent\textbf{Keywords:} hypergraph Ramsey numbers; multicolour Ramsey
+numbers; affine group; projective special linear group; stochastic local search;
+counterexample-guided SAT; clean-room verification.\\
+\textbf{MSC 2020:} 05D10; 05C55; 05C65.
+
+\section{Introduction}
+
+For integers $t\ge 2$ and $k_1,\dots,k_r>t$, the \emph{hypergraph Ramsey number}
+$R(k_1,\dots,k_r;t)$ is the least integer $n$ such that every colouring
+$\chi\colon\binom{X}{t}\to\{0,\dots,r-1\}$ of the $t$-subsets of an $n$-element
+set $X$ admits an index $c\in\{0,\dots,r-1\}$ and a $k_{c+1}$-subset
+$S\subseteq X$ with $\chi(e)=c$ for all $e\in\binom{S}{t}$. When
+$k_1=\dots=k_r=k$, we write $R_r(k;t)$. A colouring of $\binom{X}{t}$ on
+$|X|=n$ vertices free of such monochromatic subsets will be called a
+\emph{$(k_1,\dots,k_r;t)$-colouring of order~$n$}, certifying
+$R(k_1,\dots,k_r;t)\ge n+1$.
+
+Apart from $R(4,4;3)=13$~\cite{mr1}, exact values of classical hypergraph Ramsey
+numbers remain out of reach, and constructive lower bounds rely on carefully
+chosen symmetry groups balancing orbit compression against forced monochromatic
+cliques. Revision~\#18 of Radziszowski's dynamic survey~\cite[Section~7.1]{survey}
+lists $R(5,5;3)\ge 88$ and $R(4,4,4;3)\ge 79$ due to Dybizba\'nski~\cite{dyb3},
+together with $R(5,5,5;3)\ge 7\,570$ via the lexicographic product of Bruce,
+Budden, and Hiller~\cite{brbh}, and $R_4(5;3)\ge 131\,073$ from Budden, Hiller,
+and Rapp~\cite{budhr1}. Very recently, Yang~\cite{yang} obtained
+$R(4,4,4;3)\ge 84$; Lysenst{\o}en~\cite{lysenstoen1,lysenstoen2} established
+$R(5,5;3)\ge 99$ and subsequently $R(5,5;3)\ge 101$ (together with
+$R(5,7;4)\ge 859$ and Lean-verified improvements to the stepping-up lemma); and
+in a companion note~\cite{hashimoto1} the author constructed explicit witnesses
+for $R(4,4,4;3)\ge 100$, $R(5,7;4)\ge 711$, and $R(6,6;4)\ge 685$.
+
+Meanwhile, many natural adjacent parameters---including the third diagonal
+$3$-uniform number $R(6,6;3)$, off-diagonal $3$-uniform numbers $R(4,7;3)$,
+$R(4,8;3)$, $R(5,6;3)$, $R(5,7;3)$, mixed $3$-colour numbers $R(4,4,5;3)$ and
+$R(4,5,5;3)$, the multicolour tetrahedral numbers $R_r(4;3)$ for $r\ge 4$ (where
+quadratic blow-up constructions fail because any $2$-blowup of an edge creates
+four vertices spanning monochromatic triples), and the multicolour $4$-uniform
+numbers $R_r(5;4)$ for $r\ge 3$---have had no explicit group-invariant
+constructions recorded in~\cite{survey}.
+
+In this paper we address both regimes systematically and establish sixteen
+explicit lower bounds:
+
+\begin{theorem}[Two-colour $3$-uniform bounds]\label{thm:2col3u}
+\begin{align*}
+  R(5,5;3)&\ge 110, & R(6,6;3)&\ge 308, & R(5,7;3)&\ge 284,\\
+  R(5,6;3)&\ge 156, & R(4,8;3)&\ge 164, & R(4,7;3)&\ge 108.
+\end{align*}
+\end{theorem}
+
+\begin{theorem}[Multicolour $3$-uniform bounds]\label{thm:mcol3u}
+\[
+  R(4,4,4;3)\ge 103,\qquad R(4,4,5;3)\ge 164,\qquad R(4,5,5;3)\ge 272,
+\]
+and for the $r$-colour tetrahedral Ramsey numbers $R_r(4;3)$ ($4\le r\le 7$),
+\[
+  R_4(4;3)\ge 381,\qquad R_5(4;3)\ge 1\,260,\qquad R_6(4;3)\ge 3\,780,\qquad
+  R_7(4;3)\ge 5\,232.
+\]
+\end{theorem}
+
+\begin{theorem}[Multicolour $4$-uniform bounds]\label{thm:mcol4u}
+\[
+  R_3(5;4)\ge 969,\qquad R_4(5;4)\ge 3\,805,\qquad R_5(5;4)\ge 9\,439.
+\]
+\end{theorem}
+
+Combining Theorems~\ref{thm:2col3u}--\ref{thm:mcol4u} with the product theorem
+of Bruce, Budden, and Hiller~\cite{brbh} and the stepping-up lemmas of
+Erd\H{o}s--Hajnal~\cite{grs} and Jartoux, Keller, Smorodinsky, and
+Yuditsky~\cite{jaksy} yields the following consequences (proved in
+Section~\ref{sec:conseq}):
+
+\begin{corollary}\label{cor:conseq}
+$R(5,5,5;3)\ge 11\,882$, $R_4(5;3)\ge 141\,158\,162$, and in general
+$R_r(5;3)\ge 109^{2^{r-2}}+1$ for every $r\ge 3$. Furthermore,
+$R(9,9;4)>2^{109}$, $R(11,11;4)>2^{307}$, $R_6(5;4)>2^{102}$,
+$R_7(5;4)>2^{380}$, $R_8(5;4)>2^{1\,259}$, $R_9(5;4)>2^{3\,779}$,
+$R_{10}(5;4)>2^{5\,231}$, $R_6(6;5)>2^{968}$, $R_7(6;5)>2^{3\,804}$, and
+$R_8(6;5)>2^{9\,438}$.
+\end{corollary}
+
+Table~\ref{tab:all16} summarizes all sixteen explicit constructions, their
+symmetry groups, orbit counts, and SHA-256 digests.
+
+\begin{table}[ht!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{llccrc}
+\toprule
+Parameter & Previous bounds & New bound & Order $n$ & Orbits & Group on $X_n$ \\
+\midrule
+$R(5,5;3)$ & $88$~\cite{survey}; $99$~\cite{lysenstoen1}; $101$~\cite{lysenstoen2} & $\mathbf{110}$ & $109$ & $1\,983$ & $\Z_{106}+3\infty$ \\
+$R(6,6;3)$ & --- & $\mathbf{308}$ & $307$ & $103$ & $\mathrm{AGL}^+(1,307)$ \\
+$R(5,7;3)$ & --- & $\mathbf{284}$ & $283$ & $95$ & $\mathrm{AGL}^+(1,283)$ \\
+$R(5,6;3)$ & --- & $\mathbf{156}$ & $155$ & $71$ & $G(155,3)$ \\
+$R(4,8;3)$ & --- & $\mathbf{164}$ & $163$ & $55$ & $\mathrm{AGL}^+(1,163)$ \\
+$R(4,7;3)$ & --- & $\mathbf{108}$ & $107$ & $35$ & $G(107,3)$ \\
+\midrule
+$R(4,4,4;3)$ & $79$~\cite{survey}; $84$~\cite{yang}; $100$~\cite{hashimoto1} & $\mathbf{103}$ & $102$ & $1\,758$ & $\Z_{98}+4\infty$ \\
+$R(4,4,5;3)$ & --- & $\mathbf{164}$ & $163$ & $55$ & $\mathrm{AGL}^+(1,163)$ \\
+$R(4,5,5;3)$ & --- & $\mathbf{272}$ & $271$ & $91$ & $\mathrm{AGL}^+(1,271)$ \\
+$R_4(4;3)$ & --- & $\mathbf{381}$ & $380$ & $1\,152$ & $G(379,255)+1\infty$ \\
+$R_5(4;3)$ & --- & $\mathbf{1\,260}$ & $1\,259$ & $419$ & $\mathrm{AGL}^+(1,1259)$ \\
+$R_6(4;3)$ & --- & $\mathbf{3\,780}$ & $3\,779$ & $1\,259$ & $\mathrm{AGL}^+(1,3779)$ \\
+$R_7(4;3)$ & --- & $\mathbf{5\,232}$ & $5\,231$ & $1\,743$ & $\mathrm{AGL}^+(1,5231)$ \\
+\midrule
+$R_3(5;4)$ & --- & $\mathbf{969}$ & $968$ & $203$ & $\mathrm{PSL}(2,967)$ \\
+$R_4(5;4)$ & --- & $\mathbf{3\,805}$ & $3\,804$ & $792$ & $\mathrm{PSL}(2,3803)$ \\
+$R_5(5;4)$ & --- & $\mathbf{9\,439}$ & $9\,438$ & $1\,966$ & $\mathrm{PSL}(2,9437)$ \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the sixteen explicit hypergraph colourings constructed in
+this paper. Entries marked ``---'' have no explicit bound listed in~\cite[Section~7.1]{survey}
+beyond elementary monotonicity from smaller parameters (e.g.\ $R(6,6;3)\ge R(5,6;3)\ge R(5,5;3)$).}
+\label{tab:all16}
+\end{table}
+
+\section{Multi-Infinity Cyclic Relaxations for $R(5,5;3)$ and $R(4,4,4;3)$}\label{sec:multiinf}
+
+We first state the uniform orbit indexing convention used for all thirteen
+$3$-uniform witnesses in this work. Let $m\ge 1$, $s\ge 0$, and $n=m+s$, with
+point set
+\[
+  X_{m,s}=\{0,1,\dots,m-1\}\cup\{\infty_0,\dots,\infty_{s-1}\},
+\]
+where $\infty_j$ is encoded by the integer $m+j$ under the standard linear order
+$0<1<\dots<m+s-1$. For $\gcd(a,m)=1$ of multiplicative order $d=\mathrm{ord}_m(a)$,
+the affine subgroup
+\[
+  G(m,a)=\{\,x\mapsto a^j x+b\bmod m \;:\; 0\le j<d,\; b\in\Z_m\,\},
+\]
+extended to fix each $\infty_j$ pointwise ($g(\infty_j)=\infty_j$), acts on
+$\binom{X_{m,s}}{3}$. Every orbit $O\subseteq\binom{X_{m,s}}{3}$ has a unique
+lexicographically smallest triple $(u,v,w)$ ($u<v<w$); we number all orbits
+$O_0,O_1,\dots,O_{M-1}$ in strictly increasing lexicographic order of these
+minimum representatives. Thus an $r$-colouring invariant under $G(m,a)$ is
+uniquely specified by an $M$-character string over $\{0,\dots,r-1\}$.
+
+\subsection{Climbing to $R(5,5;3)\ge 110$ and $R(4,4,4;3)\ge 103$}
+
+Standard affine constructions adjoin at most a single fixed point $\infty$ to
+$\Z_m$, because adding two fixed points $\infty_0,\infty_1$ under a nontrivial
+multiplier subgroup of even order tends to create short orbits whose $5$-subsets
+degrade satisfiability. However, when the multiplier subgroup is relaxed all the
+way to the pure translation group $G(m,1)\cong\Z_m$ ($a=1$), adjoining
+$s\in\{1,2,3,4\}$ distinguishable fixed points $\infty_0,\dots,\infty_{s-1}$
+creates $\binom{m}{2}\cdot s/m\approx ms/2$ mixed orbits of type $\{x,y,\infty_j\}$,
+$s(s-1)/2$ orbits of type $\{x,\infty_i,\infty_j\}$, and $\binom{s}{3}$
+singleton orbits $\{\infty_i,\infty_j,\infty_\ell\}$ with zero forced
+monochromatic $4$- or $5$-cliques.
+
+Crucially, any valid colouring on $\Z_m\cup\{\infty_0,\dots,\infty_{s-1}\}$
+provides a zero-violation warm start on all triples not involving $\infty_s$
+when lifting to $\Z_m\cup\{\infty_0,\dots,\infty_s\}$. Executing this
+warm-started relaxation chain via GPU weighted WalkSAT/G2WSAT polished with
+large-neighbourhood CDCL SAT (\texttt{CaDiCaL}~\cite{cadical,pysat}) yielded two
+chains of witnesses:
+\begin{itemize}
+\item For $R(5,5;3)$: starting from $G(106,23)$ ($d=4$, $n=106$, $468$ orbits),
+  passing to pure $\Z_{106}$ translations and successively adjoining
+  $\infty_0,\infty_1,\infty_2$ produced valid $(5,5;3)$-colourings at
+  $n=107$ ($1\,873$ orbits), $n=108$ ($1\,927$ orbits), and $n=109$
+  ($X_{106,3}$, $1\,983$ orbits, file \path{R553_109_points_rule.json}),
+  proving $R(5,5;3)\ge 110$.
+\item For $R(4,4,4;3)$: starting from $T_{99}$ on $G(98,67)$ with one fixed
+  point~\cite{hashimoto1}, relaxing to $\Z_{98}$ translations and adjoining
+  $\infty_1,\infty_2,\infty_3$ produced valid $(4,4,4;3)$-colourings at
+  $n=100$ ($1\,651$ orbits), $n=101$ ($1\,703$ orbits), and $n=102$
+  ($X_{98,4}$, $1\,758$ orbits, file \path{R4443_102_points_rule.json}),
+  proving $R(4,4,4;3)\ge 103$. Notice that at $s=4$, the four fixed points span
+  four singleton orbits $\{\infty_0,\infty_1,\infty_2\}$,
+  $\{\infty_0,\infty_1,\infty_3\}$, $\{\infty_0,\infty_2,\infty_3\}$, and
+  $\{\infty_1,\infty_2,\infty_3\}$, which receive non-monochromatic colours
+  automatically.
+\end{itemize}
+
+\section{Infinity-Free $2$-Homogeneous and Odd-Order Affine Colourings}\label{sec:affine}
+
+\subsection{Eliminating Infinity-Point Colour Collapse in $R_r(4;3)$}
+
+A natural question when scaling $3$-uniform constructions to $r\ge 4$ colours is
+why adjoining a fixed point $\infty$ to the index-$2$ affine group
+$\mathrm{AGL}^+(1,p)=\{x\mapsto sx+b\bmod p : s\in\mathrm{QR}_p\}$ ($p\equiv 3\pmod 4$)
+stalls abruptly near $n\approx 100$ for $R_4(4;3)$. The reason is group-theoretic:
+
+\begin{lemma}\label{lem:collapse}
+Let $p\equiv 3\pmod 4$ be prime. Then $\mathrm{AGL}^+(1,p)$ acts sharply
+$2$-homogeneously on $\F_p$. Consequently, on $\F_p\cup\{\infty\}$, all
+$\binom{p}{2}$ triples of the form $\{x,y,\infty\}$ ($x,y\in\F_p$) lie in a
+single $\mathrm{AGL}^+(1,p)$-orbit $O_\infty$. In any $\mathrm{AGL}^+(1,p)$-invariant
+$(4,\dots,4;3)$-colouring of $\F_p\cup\{\infty\}$ with $r$ colours, if $O_\infty$
+has colour~$c$, then $\F_p$ cannot contain a single finite triple of colour~$c$;
+thus the finite restriction collapses to an $(r-1)$-colouring of $\binom{\F_p}{3}$.
+\end{lemma}
+
+\begin{proof}
+Since $p\equiv 3\pmod 4$, $-1\notin\mathrm{QR}_p$, so for any distinct
+$x,y\in\F_p$ exactly one of $y-x$ and $x-y$ belongs to $\mathrm{QR}_p$. If
+$y-x\in\mathrm{QR}_p$, the unique map $t\mapsto(y-x)^{-1}(t-x)$ in
+$\mathrm{AGL}^+(1,p)$ sends $\{x,y\}$ to $\{0,1\}$. Hence $\{x,y,\infty\}$ maps
+to $\{0,1,\infty\}$ for all $\{x,y\}\in\binom{\F_p}{2}$. If $\{u,v,w\}\subset\F_p$
+also had colour~$c$, then all four triples of $\{u,v,w,\infty\}$ would have
+colour~$c$, a contradiction.
+\end{proof}
+
+Lemma~\ref{lem:collapse} points immediately to two non-degenerate regimes:
+\begin{enumerate}
+\item \emph{Pure infinity-free $\mathrm{AGL}^+(1,p)$ ($s=0$, $p\equiv 3\pmod 4$).}
+  With no $\infty$ point, all $r$ colours remain fully active on $\F_p$, and
+  sharp $2$-homogeneity collapses $\binom{p}{3}$ into $(p-1)/3$ or $(p-2)/3$
+  orbits ($\lfloor(p-1)/3\rfloor$ orbits) evaluated in $O(1)$ time: for
+  $0\le a<b<c<p$, let $\Delta=b-a$, and set
+  \[
+    z=\begin{cases}
+      (c-a)\Delta^{-1}\bmod p & \text{if }\Delta\in\mathrm{QR}_p,\\
+      (c-b)(p-\Delta)^{-1}\bmod p & \text{if }\Delta\notin\mathrm{QR}_p,
+    \end{cases}
+  \]
+  which maps $\{a,b,c\}$ to $\{0,1,z\}$ ($z\in\{2,\dots,p-1\}$). Each orbit of
+  $\{0,1,z\}$ has size $1$ or $3$ (namely $\{z,z^{-1},-(z-1)^{-1}\}$ etc.\
+  according to quadratic character), and ordering orbits by their smallest
+  $z_{\min}\in\{2,\dots,p-1\}$ coincides identically with our lexicographic
+  minimum-triple rule $\{0,1,z_{\min}\}$. Moreover, every $4$-subset of $\F_p$
+  maps into $\{0,1,z,w\}$ ($2\le z<w<p$), reducing exhaustive verification on
+  $p=5\,231$ vertices ($\binom{5231}{4}\approx 3.11\times 10^{13}$ $4$-subsets)
+  to just $\binom{5229}{2}=13\,668\,606$ pairs $(z,w)$.
+\item \emph{Odd-order subgroups $G(p,a)$ with $d=\mathrm{ord}_p(a)$ odd.}
+  Because $-1$ has even order~$2$, $-1\notin\langle a\rangle$ whenever $d$ is
+  odd, preventing self-paired $4$-subset degeneracies for every prime~$p$
+  (including $p\equiv 1\pmod 4$). When the index $(p-1)/d\ge 4$, even adjoining
+  $+\infty$ splits $\{x,y,\infty\}$ into $(p-1)/(2d)\ge 2$ distinct orbits,
+  breaking Lemma~\ref{lem:collapse}. At $p=379$ with $a=255$ ($d=21$, index~$18$,
+  $1\infty$), this yields a $1\,152$-orbit $4$-colouring on $380$ vertices
+  (\path{R44443_380_points_rule.json}), pushing $R_4(4;3)\ge 381$ well past the
+  pure $\mathrm{AGL}^+(1,p)$ threshold.
+\end{enumerate}
+
+\subsection{Explicit Compact Witnesses Printed in Full}
+
+Six of the $3$-uniform witnesses in Theorems~\ref{thm:2col3u} and~\ref{thm:mcol3u}
+have at most $103$ orbits and are printed in full below under the lexicographic
+orbit convention of Section~\ref{sec:multiinf} (reading characters left-to-right,
+top-to-bottom, indexed from $O_0$; colour~$c$ avoids $K_{k_{c+1}}^{(3)}$):
+
+\medskip\noindent
+\textbf{1. $R(4,7;3)\ge 108$} ($X_{107,0}=\Z_{107}$, $G(107,3)$, order $53$, $35$ orbits):
+\begin{quote}\footnotesize\ttfamily\noindent
+11111111111110101101100100011000111
+\end{quote}
+
+\noindent
+\textbf{2. $R(4,8;3)\ge 164$} ($X_{163,0}=\F_{163}$, $\mathrm{AGL}^+(1,163)=G(163,4)$, order $81$, $55$ orbits):
+\begin{quote}\footnotesize\ttfamily\noindent
+1111011101111111011111110001111010010111011100111011001
+\end{quote}
+
+\noindent
+\textbf{3. $R(5,6;3)\ge 156$} ($X_{155,0}=\Z_{155}$, $G(155,3)$, order $60$, $71$ orbits):
+\begin{quote}\footnotesize\ttfamily\noindent
+111111111111111111111111110000001000001000100011000001100101\\
+00011100111
+\end{quote}
+
+\noindent
+\textbf{4. $R(5,7;3)\ge 284$} ($X_{283,0}=\F_{283}$, $\mathrm{AGL}^+(1,283)=G(283,9)$, order $141$, $95$ orbits):
+\begin{quote}\footnotesize\ttfamily\noindent
+100111111111110110110110111100100110011111011000010111000100\\
+10110110110101001011101111101010010
+\end{quote}
+
+\noindent
+\textbf{5. $R(6,6;3)\ge 308$} ($X_{307,0}=\F_{307}$, $\mathrm{AGL}^+(1,307)=G(307,25)$, order $153$, $103$ orbits):
+\begin{quote}\footnotesize\ttfamily\noindent
+010110110101101000001110011010000101110110101010011010010000\\
+0010100011010010100110010111110011110101001
+\end{quote}
+
+\noindent
+\textbf{6. $R(4,4,5;3)\ge 164$} ($X_{163,0}=\F_{163}$, $\mathrm{AGL}^+(1,163)=G(163,4)$, $55$ orbits; colours $0,1,2$ avoid $K_4,K_4,K_5$):
+\begin{quote}\footnotesize\ttfamily\noindent
+0221010100121100222212222122120202201210001221021022221
+\end{quote}
+
+\noindent
+\textbf{7. $R(4,5,5;3)\ge 272$} ($X_{271,0}=\F_{271}$, $\mathrm{AGL}^+(1,271)=G(271,36)$, $91$ orbits; colours $0,1,2$ avoid $K_4,K_5,K_5$):
+\begin{quote}\footnotesize\ttfamily\noindent
+001010001000101212111111112212111111111020221200212112122222\\
+2022122120022221211120220202202
+\end{quote}
+
+The larger multicolour tetrahedral witnesses for $R_5(4;3)\ge 1\,260$ ($419$
+orbits), $R_4(4;3)\ge 381$ ($1\,152$ orbits), $R_6(4;3)\ge 3\,780$ ($1\,259$
+orbits), and $R_7(4;3)\ge 5\,232$ ($1\,743$ orbits) were obtained by running a
+$984$-block ($251\,904$-thread) $r$-ary WalkSAT+PAWS kernel on an NVIDIA RTX
+3090 GPU up to the exact phase-transition boundary of $\mathrm{AGL}^+(1,p)$ and
+are archived in \path{witnesses_part2/} (with SHA-256 digests in
+Table~\ref{tab:digests}).
+
+\section{Projective-Line $\mathrm{PSL}(2,q)$ Constructions for $R_r(5;4)$}\label{sec:psl4}
+
+Let $q$ be an odd prime and $L_q=\F_q\cup\{\infty\}$ ($|L_q|=q+1$, with $\infty$
+encoded as~$q$). The group $\mathrm{PSL}(2,q)$ acts on $L_q$ by M\"obius
+transformations $x\mapsto(ax+b)/(cx+d)$ with $ad-bc\in\mathrm{QR}_q$. Because
+$|\mathrm{PSL}(2,q)|=q(q^2-1)/2$, whenever $q\equiv 2$ or $3\pmod 5$ we have
+$5\nmid q(q^2-1)/2$, so $\mathrm{PSL}(2,q)$ contains no element of order~$5$;
+consequently no $5$-subset of $L_q$ can have all five of its $4$-subsets collapsed
+into a single $\mathrm{PSL}(2,q)$-orbit.
+
+For any $4$-subset $\{a,b,c,d\}\subset L_q$ ordered as $0\le a<b<c<d\le q$, put
+$\Delta=(b-a)(c-a)(c-b)\bmod q$.
+\begin{itemize}
+\item \emph{Case $q\equiv 3\pmod 4$ ($q=967$ and $q=3\,803$).} Let
+  $\lambda=(a-c)(b-c)^{-1}\bmod q$ if $d=q$, and
+  $\lambda=(a-c)(b-d)((a-d)(b-c))^{-1}\bmod q$ if $d<q$. As in~\cite{lysenstoen1,hashimoto1},
+  $\mathrm{PSL}(2,q)$ partitions $\F_q\setminus\{0,1\}$ into narrow cross-ratio
+  classes: $\{\lambda,(1-\lambda)^{-1},(\lambda-1)\lambda^{-1}\}$ of size~$3$ when
+  $-\lambda\in\mathrm{QR}_q$ and $\lambda-1\in\mathrm{QR}_q$, and the full
+  $6$-element $S_4$-orbit otherwise. Numbering these classes $C_0,\dots,C_{M-1}$
+  by smallest element in $\{2,\dots,q-1\}$, the orbit of $\{a,b,c,d\}$ is the
+  class of $\lambda$ if $\Delta\in\mathrm{QR}_q$, and the class of
+  $\lambda^{-1}\bmod q$ if $\Delta\notin\mathrm{QR}_q$.
+\item \emph{Case $q\equiv 1\pmod 4$ ($q=9\,437$).} Let
+  $\kappa=(c-a)(c-b)^{-1}\bmod q$, and $\lambda=\kappa$ if $d=q$ else
+  $\kappa(d-b)(d-a)^{-1}\bmod q$. Each $6$-element $\mathrm{PGL}(2,q)$
+  cross-ratio class $P$ (ordered by smallest representative $x_{\min}\in\{2,\dots,q-1\}$)
+  splits into two chiral $\mathrm{PSL}(2,q)$-orbits $(P^+,P^-)$ selected by
+  whether $\Delta\in\mathrm{QR}_q$ if and only if both $x_{\min}\in\mathrm{QR}_q$
+  and $x_{\min}-1\in\mathrm{QR}_q$, and remains a single orbit otherwise~\cite{hashimoto1}.
+\end{itemize}
+
+For $r=3$ colours at $q=967$ ($967\equiv 3\pmod 4$, $967\equiv 2\pmod 5$, $203$
+narrow classes), incremental CDCL SAT solving with \texttt{CaDiCaL} produced an
+explicit $(5,5,5;4)$-colouring on $968$ points (\path{R5554_968_points_rule.json}),
+whose $203$-character narrow-class string is printed in full here:
+\begin{quote}\footnotesize\ttfamily\noindent
+022200012020101200101221202101221011001021112012201200101221\\
+202202021010212202001100212121102020211221101222202020000211\\
+010112012112122022112111011122220220120002202201210202012100\\
+20112012202102211201222
+\end{quote}
+
+For $r=4$ colours at $q=3\,803$ ($792$ narrow classes, $3\,804$ points) and $r=5$
+colours at $q=9\,437$ ($1\,966$ chiral classes, $9\,438$ points), the $r$-ary GPU
+WalkSAT+PAWS solver produced zero-violation witnesses
+(\path{R55554_3804_points_rule.json} and \path{R555554_9438_points_rule.json}),
+establishing Theorem~\ref{thm:mcol4u}.
+
+\section{Consequences and Clean-Room Verification}\label{sec:conseq}
+
+\begin{proof}[Proof of Corollary~\ref{cor:conseq}]
+By Theorem~\ref{thm:2col3u}, $R(5,5;3)\ge 110$, so there exists a $(5,5;3)$-colouring
+of order $109$. Applying the iterated lexicographic product construction of
+Bruce, Budden, and Hiller~\cite{brbh} (see also~\cite[Section~7.1(a)]{survey}),
+if $R(5,5;3)>m$ then $R_r(5;3)\ge m^{2^{r-2}}+1$ for every $r\ge 3$. Setting
+$m=109$ gives $R_3(5;3)\ge 109^2+1=11\,882$ and
+$R_4(5;3)\ge 109^4+1=141\,158\,162$.
+
+Next, the Erd\H{o}s--Hajnal stepping-up lemma~\cite[p.~106]{grs}
+(\cite[Section~7.5(a)]{survey}) states that if $R(k,k;t)>m$ for $k>t\ge 3$, then
+$R(2k+t-4,2k+t-4;t+1)>2^m$. Applying this with $(k,t,m)=(5,3,109)$ and
+$(6,3,307)$ from Theorem~\ref{thm:2col3u} yields $R(9,9;4)>2^{109}$ and
+$R(11,11;4)>2^{307}$. Finally, Jartoux, Keller, Smorodinsky, and
+Yuditsky~\cite{jaksy} (\cite[Section~7.5(b)]{survey}) proved that if
+$R_r(k;t)>m$ for $t\ge 3$, then $R_{r+3}(k+1;t+1)>2^m$. Substituting
+$R_r(4;3)>102,380,1\,259,3\,779,5\,231$ ($r=3,\dots,7$) from
+Theorem~\ref{thm:mcol3u} and $R_r(5;4)>968,3\,804,9\,438$ ($r=3,4,5$) from
+Theorem~\ref{thm:mcol4u} gives all remaining inequalities.
+\end{proof}
+
+\subsection{Independent Clean-Room Verification}
+
+To preclude any shared-code defect or convention mismatch between the GPU/SAT
+search programs and verification, we wrote two standalone, zero-dependency
+clean-room verifiers (\path{verify_part2_records.rs} in pure Rust standard
+library and \path{verify_part2_records.py} in pure Python standard library)
+directly from the mathematical definitions in Sections~\ref{sec:multiinf}--\ref{sec:psl4}:
+\begin{enumerate}
+\item \emph{Cryptographic integrity and generator invariance.} Both verifiers
+  recompute the FIPS~180-4 SHA-256 digest of every \texttt{orbit\_string} (listed
+  in Table~\ref{tab:digests}) and explicitly check invariance under the group
+  generators ($x\mapsto x+1$, $x\mapsto ax$, and $x\mapsto -x^{-1}$ where
+  applicable).
+\item \emph{Exhaustive forbidden-clique absence ($2.47\text{ s}$ total in Rust).}
+  \begin{itemize}
+  \item For $R(5,5;3)\ge 110$, $R(4,4,4;3)\ge 103$, and $R(4,4,5;3)\ge 164$,
+    \path{verify_part2_records.rs} checks \emph{every} vertex anchor $0\le v_0<n$
+    with bitmask clique backtracking, assuming zero group symmetry whatsoever.
+  \item For the remaining $G(m,a)+s\infty$ witnesses ($n\le 380$), verified
+    $\Z_m$-translation invariance maps every subset containing a finite vertex to
+    one containing~$0$; \path{verify_part2_records.rs} exhaustively checks anchor~$0$
+    and all infinity anchors (assuming zero multiplicative symmetry).
+  \item For the large $\mathrm{AGL}^+(1,p)$ witnesses ($p\in\{1\,259,3\,779,5\,231\}$),
+    verified $2$-homogeneity maps every $4$-subset to $\{0,1,z,w\}$
+    ($2\le z<w<p$), and all $789\,396$, $7\,130\,976$, and $13\,668\,606$ pairs
+    $(z,w)$ are checked exhaustively.
+  \item For the $\mathrm{PSL}(2,q)$ $4$-uniform witnesses
+    ($q\in\{967,3\,803,9\,437\}$), $\mathrm{PSL}(2,q)$ is $2$-transitive on $L_q$
+    and partitions triples $\{\infty,0,b\}$ into two orbits represented by
+    $b\in\{1,g_{\mathrm{ns}}\}$ ($g_{\mathrm{ns}}\notin\mathrm{QR}_q$); every
+    $5$-subset of $L_q$ therefore maps to $\{\infty,0,b,c,d\}$ with
+    $b\in\{1,g_{\mathrm{ns}}\}$ and $1\le c<d<q$ ($c,d\ne b$), and all
+    $930\,260$, $14\,443\,800$, and $89\,009\,790$ normalized $5$-subsets are
+    verified exhaustively.
+  \end{itemize}
+\end{enumerate}
+
+\begin{table}[ht!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrl}
+\toprule
+Witness file (\path{witnesses_part2/}) & Bound & Orbits & SHA-256 of \texttt{orbit\_string} \\
+\midrule
+\path{R553_109_points_rule.json} & $R(5,5;3)\ge 110$ & $1\,983$ & \texttt{e91948a5eb5cd077bad9ecf444e87025b1c49f52e9baca969485642e6f54d931} \\
+\path{R663_307_points_rule.json} & $R(6,6;3)\ge 308$ & $103$ & \texttt{bc30e57ef395c409f682fb114d8ee0092e1ea9c1fd69165a61d216023527bff4} \\
+\path{R573_283_points_rule.json} & $R(5,7;3)\ge 284$ & $95$ & \texttt{d9e743f89f228e8bdc6bf29d275614959451214da68233d53ce2955b4d78e32e} \\
+\path{R563_155_points_rule.json} & $R(5,6;3)\ge 156$ & $71$ & \texttt{a8b4d69765aacc26272a8169abdf3f254d12c12df16df20e143590c88372ff70} \\
+\path{R483_163_points_rule.json} & $R(4,8;3)\ge 164$ & $55$ & \texttt{c38b8ae9c5583c5acf1ed3fe6d0da80784f636b971fe36d374b9c7485ec31134} \\
+\path{R473_107_points_rule.json} & $R(4,7;3)\ge 108$ & $35$ & \texttt{12bd56725264b7ad1116c6a61e80a8171533f3552fd5e807b1fc849bf8ebc72d} \\
+\path{R4443_102_points_rule.json} & $R(4,4,4;3)\ge 103$ & $1\,758$ & \texttt{97b4e0b7b0f5325dc1d193884361c6d9cd08516e45360b6418f5e0460d5d589e} \\
+\path{R4453_163_points_rule.json} & $R(4,4,5;3)\ge 164$ & $55$ & \texttt{bedfb1b228ab5ea9b06b8362951c3398a4cb5f05183125e1ca69d2154d1dd32f} \\
+\path{R4553_271_points_rule.json} & $R(4,5,5;3)\ge 272$ & $91$ & \texttt{98031da53f84c535659e64bd40bcd9342af255ced8bee27f7069d4a042825a4e} \\
+\path{R44443_380_points_rule.json} & $R_4(4;3)\ge 381$ & $1\,152$ & \texttt{2ab29273851b486d5630b77459fcf1c6a8a3cd17382370885c702dc1a7737dc7} \\
+\path{R444443_1259_points_rule.json} & $R_5(4;3)\ge 1\,260$ & $419$ & \texttt{ed35a26a7f431afa810e62c6396d26b95ad8118fb5f7dca0152b43cb2c22b2b7} \\
+\path{R4444443_3779_points_rule.json} & $R_6(4;3)\ge 3\,780$ & $1\,259$ & \texttt{bd5d312b7d1ebbc0853acd1dc81baa7772bf9d4f9b251980c10e29c337c60780} \\
+\path{R44444443_5231_points_rule.json} & $R_7(4;3)\ge 5\,232$ & $1\,743$ & \texttt{6a97b6b941e53883e8d9633d4f9616873e2726fd7c8b86aa9882b4e2a3f27f7c} \\
+\path{R5554_968_points_rule.json} & $R_3(5;4)\ge 969$ & $203$ & \texttt{7c88eb9794731edfde2d6fbaaabaaeb47892c28663ba3de45e6db1d7aa052697} \\
+\path{R55554_3804_points_rule.json} & $R_4(5;4)\ge 3\,805$ & $792$ & \texttt{40431e8e6f4b65dc73be522894b59ead4992345e28df3d7b91c6d7cfa81b9c89} \\
+\path{R555554_9438_points_rule.json} & $R_5(5;4)\ge 9\,439$ & $1\,966$ & \texttt{65544961bd50222407196c832ac23f30ba0fae29dfa104d66078641565a12a9c} \\
+\bottomrule
+\end{tabular}}
+\caption{Machine-readable witness files and SHA-256 digests.}
+\label{tab:digests}
+\end{table}
+
+\subsection*{Data Availability}
+{\sloppy
+All sixteen machine-readable JSON witness files (\path{witnesses_part2/*.json})
+and the standalone zero-dependency verification programs
+(\path{verify_part2_records.rs} and \path{verify_part2_records.py}) are archived
+permanently at Zenodo (\url{https://doi.org/10.5281/zenodo.24462206}, release
+\texttt{v1.2.0}) and on GitHub
+(\url{https://github.com/ramuza0113-sketch/ramsey-r664-621}).\par}
+
+\subsection*{Acknowledgments}
+The author thanks Stanis{\l}aw P.\ Radziszowski for maintaining the dynamic
+survey on small Ramsey numbers and for helpful correspondence, and Christian
+Lysenst{\o}en for independently checking the colourings in~\cite{hashimoto1} and
+sharing his new results~\cite{lysenstoen2}. In accordance with journal policy on
+artificial intelligence tools, the author discloses that an AI assistant (Google
+DeepMind Antigravity) was used to assist in implementing the GPU local-search,
+CEGAR, and clean-room verification programs, checking group-theoretic and
+recurrence calculations, and drafting and polishing the English exposition and
+\LaTeX{} formatting. Every mathematical claim and computational witness was
+verified by independent zero-shared-code clean-room checkers, and the author
+takes full responsibility for all content of this paper.
+
+\begin{thebibliography}{99}
+\small
+
+\bibitem{cadical}
+A.~Biere, K.~Fazekas, M.~Fleury, and M.~Heisinger,
+\emph{CaDiCaL, Kissat, Paracooba, Plingeling and Treengeling entering the SAT
+Competition 2020},
+in: Proc.\ of SAT Competition 2020 -- Solver and Benchmark Descriptions,
+Univ.\ of Helsinki, 2020, 51--53.
+
+\bibitem{brbh}
+M.~Bruce, M.~Budden, and J.~Hiller,
+\emph{Lexicographic products of $r$-uniform hypergraphs and some applications to
+hypergraph Ramsey theory},
+Australas.\ J.\ Combin.\ \textbf{70} (2018), 390--401.
+
+\bibitem{budhr1}
+M.~Budden, J.~Hiller, and A.~Rapp,
+\emph{Generalized Ramsey theorems for $r$-uniform hypergraphs},
+Australas.\ J.\ Combin.\ \textbf{63} (2015), 142--152.
+
+\bibitem{dyb2}
+J.~Dybizba\'nski,
+\emph{A lower bound on the hypergraph Ramsey number $R(4,5;3)$},
+Contrib.\ Discrete Math.\ \textbf{13} (2018), no.~2, 112--115.
+
+\bibitem{dyb3}
+J.~Dybizba\'nski,
+personal communication to S.~P. Radziszowski (2018), cited in~\cite{survey};
+data at \url{https://inf.ug.edu.pl/ramsey}.
+
+\bibitem{grs}
+R.~L. Graham, B.~L. Rothschild, and J.~H. Spencer,
+\emph{Ramsey Theory}, 2nd ed., John Wiley \& Sons, New York, 1990.
+
+\bibitem{hashimoto1}
+K.~Hashimoto,
+\emph{Improved constructive lower bounds for small hypergraph Ramsey numbers},
+preprint (\texttt{v1.1.0}), Zenodo, November 2026,
+\url{https://doi.org/10.5281/zenodo.24474219}
+(concept DOI: \url{https://doi.org/10.5281/zenodo.24462206}).
+
+\bibitem{pysat}
+A.~Ignatiev, A.~Morgado, and J.~Marques-Silva,
+\emph{PySAT: A Python toolkit for prototyping with SAT oracles},
+in: Theory and Applications of Satisfiability Testing -- SAT 2018,
+Lecture Notes in Comput.\ Sci.\ 10929, Springer, 2018, 428--437.
+
+\bibitem{jaksy}
+B.~Jartoux, C.~Keller, S.~Smorodinsky, and Y.~Yuditsky,
+\emph{On multicolour Ramsey numbers and subset coloring of hypergraphs},
+SIAM J.\ Discrete Math.\ \textbf{36} (2022), no.~3, 1848--1860.
+
+\bibitem{lysenstoen1}
+C.~Lysenst{\o}en,
+\emph{New lower bounds for six small hypergraph Ramsey numbers},
+preprint, November 2026, arXiv:2611.25143v1.
+
+\bibitem{lysenstoen2}
+C.~Lysenst{\o}en,
+\emph{Improving the stepping-up lemma for hypergraph Ramsey numbers, with proofs
+verified in Lean},
+preprint and ancillary repository, November 2026,
+\url{https://github.com/Chrislysen/stepping-up-ramsey}.
+
+\bibitem{mr1}
+B.~D. McKay and S.~P. Radziszowski,
+\emph{The first classical Ramsey number for hypergraphs is computed},
+in: Proc.\ Second Annual ACM--SIAM Symposium on Discrete Algorithms (SODA '91),
+1991, 304--308.
+
+\bibitem{survey}
+S.~P. Radziszowski,
+\emph{Small Ramsey numbers},
+Electron.\ J.\ Combin., Dynamic Survey DS1, revision~\#18 (24 April 2026),
+\url{https://doi.org/10.37236/21}.
+
+\bibitem{yang}
+H.~Yang,
+\emph{Three improved lower bounds for hypergraph Ramsey numbers},
+data deposit, Zenodo, 2026,
+\url{https://doi.org/10.5281/zenodo.24301648}.
+
+\end{thebibliography}
+
+\end{document}

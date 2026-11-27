@@ -1,0 +1,20 @@
+{
+  "claim": "R(4, 7; 3) >= 108",
+  "uniformity": 3,
+  "colors": 2,
+  "thresholds": [
+    4,
+    7
+  ],
+  "points": 107,
+  "construction_type": "affine_plus_infinity",
+  "n_mod": 107,
+  "multiplier_a": 3,
+  "multiplier_order": 53,
+  "n_infinity": 0,
+  "group": "G(107, 3)",
+  "orbit_rule": "Orbits of 3-subsets of Z_107 under x -> 3^j * x + b mod 107 (order 53) ordered by lexicographically smallest representative triple.",
+  "num_orbits": 35,
+  "orbit_string": "11111111111110101101100100011000111",
+  "orbit_string_sha256": "12bd56725264b7ad1116c6a61e80a8171533f3552fd5e807b1fc849bf8ebc72d"
+}

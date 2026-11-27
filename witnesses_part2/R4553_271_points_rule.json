@@ -1,0 +1,21 @@
+{
+  "claim": "R(4, 5, 5; 3) >= 272",
+  "uniformity": 3,
+  "colors": 3,
+  "thresholds": [
+    4,
+    5,
+    5
+  ],
+  "points": 271,
+  "construction_type": "aglp_2homogeneous",
+  "n_mod": 271,
+  "multiplier_a": 36,
+  "multiplier_order": 135,
+  "n_infinity": 0,
+  "group": "AGL+(1, 271)",
+  "orbit_rule": "2-homogeneous action of AGL+(1, 271) = {x -> s*x + b mod 271 : s in QR_271} on F_271. Every triple {a,b,c} (a < b < c) maps to {0, 1, z} with z = (c-a)*(b-a)^(-1) mod p if (b-a) in QR_271 else (c-b)*(a-b)^(-1) mod p; orbits are ordered by increasing smallest z in {2..270} (equivalently, lexicographically smallest triple {0, 1, z_min}).",
+  "num_orbits": 91,
+  "orbit_string": "0010100010001012121111111122121111111110202212002121121222222022122120022221211120220202202",
+  "orbit_string_sha256": "98031da53f84c535659e64bd40bcd9342af255ced8bee27f7069d4a042825a4e"
+}
