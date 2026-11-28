@@ -3,8 +3,8 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24462206.svg)](https://doi.org/10.5281/zenodo.24462206)
 
 **Author**: Katsutoshi Hashimoto (Independent Researcher, Japan — `ramuza0113@gmail.com` · [ORCID: `0009-0009-8292-5085`](https://orcid.org/0009-0009-8292-5085))  
-**Date**: November 2026 (`v1.2.0`)  
-**Concept DOI (always resolves to latest version)**: [`10.5281/zenodo.24462206`](https://doi.org/10.5281/zenodo.24462206) (`v1.2.0`: [`10.5281/zenodo.24587745`](https://doi.org/10.5281/zenodo.24587745), `v1.1.0`: [`10.5281/zenodo.24474219`](https://doi.org/10.5281/zenodo.24474219), `v1.0.0`: [`10.5281/zenodo.24462207`](https://doi.org/10.5281/zenodo.24462207))  
+**Date**: November 2026 (`v1.2.1`)  
+**Concept DOI (always resolves to latest version)**: [`10.5281/zenodo.24462206`](https://doi.org/10.5281/zenodo.24462206) (`v1.2.1`: [`10.5281/zenodo.24624899`](https://doi.org/10.5281/zenodo.24624899), `v1.2.0`: [`10.5281/zenodo.24587745`](https://doi.org/10.5281/zenodo.24587745), `v1.1.0`: [`10.5281/zenodo.24474219`](https://doi.org/10.5281/zenodo.24474219), `v1.0.0`: [`10.5281/zenodo.24462207`](https://doi.org/10.5281/zenodo.24462207))  
 **Manuscripts**:
 - **Part II (`v1.2.0`)**: [`paper_part2/main.pdf`](paper_part2/main.pdf) ([`paper_part2/main.tex`](paper_part2/main.tex)) — *Constructive Lower Bounds for Multicolour and Off-Diagonal Hypergraph Ramsey Numbers* (16 explicit constructions)
 - **Part I (`v1.1.0`)**: [`paper/main.pdf`](paper/main.pdf) ([`paper/main.tex`](paper/main.tex)) — *Improved Constructive Lower Bounds for Small Hypergraph Ramsey Numbers*
