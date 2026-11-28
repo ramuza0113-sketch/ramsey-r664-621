@@ -1,9 +1,9 @@
 {
   "title": "Improved Constructive Lower Bounds for Small, Multicolour, and Off-Diagonal Hypergraph Ramsey Numbers",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "upload_type": "publication",
   "publication_type": "preprint",
-  "description": "Release v1.2.0 archives eighteen explicit hypergraph Ramsey constructions across Part I (v1.1.0: R(6,6;4) >= 685, R(5,7;4) >= 711, R(4,4,4;3) >= 100) and Part II (v1.2.0: sixteen explicit colourings establishing R(5,5;3) >= 110, R(6,6;3) >= 308, R(5,7;3) >= 284, R(5,6;3) >= 156, R(4,8;3) >= 164, R(4,7;3) >= 108, R(4,4,4;3) >= 103, R(4,4,5;3) >= 164, R(4,5,5;3) >= 272, R_4(4;3) >= 381, R_5(4;3) >= 1260, R_6(4;3) >= 3780, R_7(4;3) >= 5232, R_3(5;4) >= 969, R_4(5;4) >= 3805, and R_5(5;4) >= 9439, together with product and stepping-up corollaries including R(5,5,5;3) >= 11882, R_4(5;3) >= 141158162, R(11,11;4) > 2^307, R_6(5;4) > 2^102, R_10(5;4) > 2^5231, and R_8(6;5) > 2^9438). Includes both manuscripts (PDF/LaTeX), uniform machine-readable JSON witness certificates with SHA-256 digests, and standalone zero-dependency Rust and Python clean-room verifiers.",
+  "description": "Release v1.2.1 updates the Part II manuscript PDF and LaTeX source with typographical and table-layout refinements (all 19 JSON witness files across Part I and Part II and their SHA-256 digests are unchanged from v1.2.0). Archives explicit hypergraph Ramsey constructions across Part I (v1.1.0: R(6,6;4) >= 685, R(5,7;4) >= 711, R(4,4,4;3) >= 100) and Part II (v1.2.0/v1.2.1: sixteen explicit colourings establishing R(5,5;3) >= 110, R(6,6;3) >= 308, R(5,7;3) >= 284, R(5,6;3) >= 156, R(4,8;3) >= 164, R(4,7;3) >= 108, R(4,4,4;3) >= 103, R(4,4,5;3) >= 164, R(4,5,5;3) >= 272, R_4(4;3) >= 381, R_5(4;3) >= 1260, R_6(4;3) >= 3780, R_7(4;3) >= 5232, R_3(5;4) >= 969, R_4(5;4) >= 3805, and R_5(5;4) >= 9439, together with product and stepping-up corollaries including R(5,5,5;3) >= 11882, R_4(5;3) >= 141158162, R(11,11;4) > 2^307, R_6(5;4) > 2^102, R_10(5;4) > 2^5231, and R_8(6;5) > 2^9438). Includes both manuscripts (PDF/LaTeX), uniform machine-readable JSON witness certificates with SHA-256 digests, and standalone zero-dependency Rust and Python clean-room verifiers.",
   "creators": [
     {
       "name": "Hashimoto, Katsutoshi",
